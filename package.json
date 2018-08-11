@@ -6,13 +6,14 @@
     "axios": "^0.18.0",
     "cheerio": "^1.0.0-rc.2",
     "koa": "^2.5.2",
+    "mongoose": "^5.2.7",
     "react": "^16.4.2",
     "react-dom": "^16.4.2",
     "react-scripts": "1.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
-    "server": "node server.js",
+    "server": "node server/index.js",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"

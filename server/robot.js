@@ -15,21 +15,30 @@ axios.interceptors.response.use(
   }
 );
 
+/**
+ * @param {any} cycle detail: https://www.npmjs.com/package/node-schedule
+ */
 class Robot {
-  constructor() {
+  constructor(cycle = { second: 0, minute: 0, hour: 0 }) {
     const prefixUrl = 'https://www.douban.com/group/gz020/discussion?start=';
     this.page = 0;
     this.url = `${prefixUrl + this.page * 25}`;
+    this.cycle = cycle;
     this.timer = null;
+
+    // this.fetchData().then(data => {
+    //   this.insertToDB(data);
+    // });
+
     // everyday at 0:00am
-    scheduleJob({ second: 0, minute: 0, hour: 0 }, () => {
+    scheduleJob(this.cycle, () => {
       console.log(`start scheduleJob, time: ${new Date()}`);
       this.page = 0;
       // every 3 second fetch data & write to db
       this.timer = setInterval(() => {
         console.log(`start fetchData, current page: ${this.page}`);
-        // only fetch 10 pages
-        if (this.page === 10) {
+        // only fetch 20 pages
+        if (this.page === 20) {
           clearInterval(this.timer);
         }
 
@@ -57,27 +66,28 @@ class Robot {
     });
   }
 
-  // transfer useful data
+  // transform useful data
   handleData(data) {
     const result = [];
     const $ = cheerio.load(data);
-    const $trs = $('table tr');
-    const writeTime = +new Date();
+    const $trs = $('table.olt tr');
+    const writeTime = +new Date() + '';
     $trs.each(function(i) {
-      if (i > 1) {
+      if (i > 0) {
         let line = {};
         const $tds = $(this).children('td');
         $tds.each(function() {
           let $td = $(this);
           // only need `title` & `time` td
-          let isTitleTd = $td.hasClass('title');
-          let isTimeTd = $td.hasClass('time');
+          const isTitleTd = $td.hasClass('title');
+          const isTimeTd = $td.hasClass('time');
           if (isTitleTd || isTimeTd) {
             // title & url
-            let isTitleTd = $td.hasClass('title');
             if (isTitleTd) {
-              line.title = $td.children('a').attr('title');
-              line.url = $td.children('a').attr('href');
+              const $a = $td.children('a');
+              line.title = $a.attr('title');
+              line.url = $a.attr('href');
+              line.id = $a.attr('href').match(/[1-9]\d*/);
             }
             // time
             if (isTimeTd) {
@@ -85,9 +95,9 @@ class Robot {
             }
             // write db time
             line.writeTime = writeTime;
-            result.push(line);
           }
         });
+        result.push(line);
       }
     });
     return result;
@@ -98,7 +108,9 @@ class Robot {
     if (data.length) {
       db.Houses.insertMany(data, err => {
         if (err) {
-          console.error('fail to insert data');
+          console.error('fail to insert data', err);
+        } else {
+          console.log('success insert to db');
         }
       });
     }

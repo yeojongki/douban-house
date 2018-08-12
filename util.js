@@ -23,6 +23,7 @@ function sleep(time = 0) {
 function scheduleJob(time, fn) {
   return schedule.scheduleJob(time, fn);
 }
+
 module.exports = {
   write: write,
   sleep: sleep,

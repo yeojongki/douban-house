@@ -1,6 +1,7 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const db = require('./db');
+const { scheduleJob, sleep } = require('../util');
 
 // config axios
 axios.defaults.headers.get['User-Agent'] =
@@ -15,15 +16,32 @@ axios.interceptors.response.use(
 );
 
 class Robot {
-  constructor(page = 0) {
+  constructor() {
     const prefixUrl = 'https://www.douban.com/group/gz020/discussion?start=';
-    this.page = page;
+    this.page = 0;
     this.url = `${prefixUrl + this.page * 25}`;
-    this.house = [];
-    this.fetchData().then(data => {
-      this.insertToDB(data);
+    this.timer = null;
+    // everyday at 0:00am
+    scheduleJob({ second: 0, minute: 0, hour: 0 }, () => {
+      console.log(`start scheduleJob, time: ${new Date()}`);
+      this.page = 0;
+      // every 3 second fetch data & write to db
+      this.timer = setInterval(() => {
+        console.log(`start fetchData, current page: ${this.page}`);
+        // only fetch 10 pages
+        if (this.page === 10) {
+          clearInterval(this.timer);
+        }
+
+        this.fetchData().then(data => {
+          this.insertToDB(data);
+          this.page++;
+        });
+      }, 3000);
     });
   }
+
+  // fetch data
   fetchData() {
     const that = this;
     return new Promise((resolve, reject) => {
@@ -38,6 +56,8 @@ class Robot {
         });
     });
   }
+
+  // transfer useful data
   handleData(data) {
     const result = [];
     const $ = cheerio.load(data);
@@ -72,8 +92,9 @@ class Robot {
     });
     return result;
   }
+
+  // write to mongodb
   insertToDB(data) {
-    // write to mongodb
     if (data.length) {
       db.Houses.insertMany(data, err => {
         if (err) {

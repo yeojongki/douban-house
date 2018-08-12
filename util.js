@@ -1,15 +1,30 @@
 const fs = require('fs');
-function write(path, txt) {
+const schedule = require('node-schedule');
+
+function write(path = 'file.txt', txt = 'this is the default text') {
   fs.writeFile(path, txt, function(err) {
     if (err) {
-      console.error('写入文件失败');
-      return false;
+      console.error('fail to write');
     } else {
-      console.log('写入成功');
+      console.log('success to write');
     }
   });
 }
 
+function sleep(time = 0) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      resolve();
+    }, time);
+  });
+}
+
+// schedule job
+function scheduleJob(time, fn) {
+  return schedule.scheduleJob(time, fn);
+}
 module.exports = {
-  write: write
+  write: write,
+  sleep: sleep,
+  scheduleJob: scheduleJob
 };

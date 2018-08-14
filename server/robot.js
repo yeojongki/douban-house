@@ -1,7 +1,7 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const db = require('./db');
-const { scheduleJob, write } = require('../util');
+const { scheduleJob, extractHouse, write } = require('../util');
 
 // config axios
 axios.defaults.headers.get['User-Agent'] =
@@ -17,20 +17,32 @@ axios.interceptors.response.use(
 
 /**
  * @param {any} cycle detail: https://www.npmjs.com/package/node-schedule
+ * @param {Number} maxPage
  */
 class Robot {
-  constructor(cycle = { second: 0, minute: 0, hour: 0 }) {
-    const prefixUrl = 'https://www.douban.com/group/gz020/discussion?start=';
+  constructor(
+    cycle = { second: 50, minute: 48, hour: 0 },
+    maxPage = 10,
+    waitTime = 1000 * 10
+  ) {
+    this.groupPrefixUrl =
+      'https://www.douban.com/group/gz020/discussion?start=';
+    // group topic detail url
+    this.topicUrl = 'https://www.douban.com/group/topic/';
     this.page = 0;
-    this.url = `${prefixUrl + this.page * 25}`;
+    this.waitTime = waitTime;
+    this.maxPage = maxPage;
     this.cycle = cycle;
     this.timer = null;
 
-    // this.fetchData().then(data => {
+    // console.time('fetch time');
+    // this.fetchList().then(data => {
     //   this.insertToDB(data);
+    //   console.timeEnd('fetch time');
     // });
 
     this.init();
+    // this.fetchDetail(121771915);
   }
 
   // init
@@ -44,51 +56,59 @@ class Robot {
       this.page = 0;
       // every 3 second fetch data & write to db
       this.timer = setInterval(() => {
-        console.log(`start fetchData, current page: ${this.page}`);
-        // only fetch 20 pages
-        if (this.page === 20) {
+        console.log(`start fetchList, current page: ${this.page}`);
+        // only fetch maxPages
+        if (this.page === this.maxPage) {
           clearInterval(this.timer);
         }
 
-        this.fetchData().then(data => {
-          this.insertToDB(data);
-          this.page++;
+        this.fetchList().then(data => {
+          this.insertToDB(data)
+            .then(() => {
+              this.page++;
+            })
+            .catch(() => {
+              this.page++;
+            });
         });
-      }, 3000);
+      }, this.waitTime);
     });
   }
 
-  // fetch data
-  fetchData() {
+  // fetch list
+  fetchList() {
     const that = this;
     return new Promise((resolve, reject) => {
       axios
-        .get(that.url)
+        .get(that.groupPrefixUrl + that.page * 25)
         .then(res => {
-          resolve(that.handleData(res));
+          resolve(that.handleListData(res));
         })
         .catch(err => {
-          console.error('fetch data error');
+          console.error('fetch list error');
           reject(err);
         });
     });
   }
 
-  // transform useful data
-  handleData(html) {
+  // transform useful list data
+  handleListData(html) {
     const result = [];
     const $ = cheerio.load(html);
+    // const $trs = $('table.olt tr').eq(1);
     const $trs = $('table.olt tr');
     $trs.each(function(i) {
+      // if (i >= 0) {
       if (i > 0) {
         let line = {};
         const $tds = $(this).children('td');
         $tds.each(function() {
           let $td = $(this);
-          // only need `title` & `time` td
+          // only need `title` & `time` & `author` td
           const isTitleTd = $td.hasClass('title');
           const isTimeTd = $td.hasClass('time');
-          if (isTitleTd || isTimeTd) {
+          const isAuthorTd = $td.index() == 1;
+          if (isTitleTd || isAuthorTd) {
             // title & url
             if (isTitleTd) {
               const $a = $td.children('a');
@@ -97,7 +117,11 @@ class Robot {
             }
             // time
             if (isTimeTd) {
-              line.time = $td.text();
+              line.ltime = $td.text();
+            }
+            // author
+            if (isAuthorTd) {
+              line.author = $td.text();
             }
           }
         });
@@ -107,17 +131,78 @@ class Robot {
     return result;
   }
 
+  // fetch detail info
+  fetchDetail(tid) {
+    const that = this;
+    return new Promise((resolve, reject) => {
+      axios
+        .get(that.topicUrl + tid)
+        .then(res => {
+          resolve(that.handleDetailData(res));
+        })
+        .catch(err => {
+          console.error('fetch detail error');
+          reject(err);
+        });
+    });
+  }
+
+  // transform useful detail data
+  handleDetailData(html) {
+    const $ = cheerio.load(html);
+    const text = $('#link-report .topic-richtext')
+      .text()
+      .trim();
+    const cTime = $('#content h3 .color-green').text();
+    // extract useful infomations
+    let houseInfo = extractHouse(text);
+    houseInfo.content = text;
+    houseInfo.ctime = cTime;
+
+    //if have images, add to infomations
+    const $imgs = $('#link-report img');
+    if ($imgs.length) {
+      let imgArr = [];
+      $imgs.each(function() {
+        imgArr.push($(this).attr('src'));
+      });
+      houseInfo.imgs = imgArr;
+    }
+    return houseInfo;
+  }
+
   // write to mongodb
   insertToDB(data) {
-    if (data.length) {
-      db.Houses.insertMany(data, err => {
-        if (err) {
-          console.error(`insert db fail, at ${new Date()}：${err.message}`);
-        } else {
-          console.log(`success insert ${data.length} data at ${new Date()}`);
-        }
-      });
-    }
+    let that = this;
+    return new Promise((resolve, reject) => {
+      if (data.length) {
+        db.Houses.insertMany(data)
+          .then(doc => {
+            console.log(`success insert ${data.length} data at ${new Date()}`);
+            // avoid fetch duplicate tids, so after insert and fetch detail
+            doc.map(item => {
+              const tid = item.tid;
+              that.fetchDetail(tid).then(houseInfo => {
+                db.Houses.findOneAndUpdate({ tid: tid }, houseInfo, null)
+                  .then(() => {
+                    console.log(`success update tid '${tid}' at ${new Date()}`);
+                    resolve();
+                  })
+                  .catch(err => {
+                    console.error(
+                      `findOneAndUpdate error, at ${new Date()}：${err.message}`
+                    );
+                    reject(err);
+                  });
+              });
+            });
+          })
+          .catch(err => {
+            console.error(`insert db fail, at ${new Date()}：${err.message}`);
+            reject(err);
+          });
+      }
+    });
   }
 
   // judge if need delete

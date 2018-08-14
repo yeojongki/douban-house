@@ -13,8 +13,18 @@ db.once('open', () => {
 // create schema
 const housesSchema = new mongoose.Schema({
   tid: String,
+  author: String,
   title: String,
-  time: String,
+  content: String,
+  ctime: String,
+  ltime: String,
+  prices: Array,
+  contact: Object,
+  size: String,
+  model: String,
+  subway: String,
+  area: String,
+  imgs: [String]
 });
 
 housesSchema.index({ tid: 1 }, { unique: true });

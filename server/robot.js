@@ -1,11 +1,16 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const db = require('./db');
-const { scheduleJob, extractHouse, write } = require('../util');
+const { scheduleJob, extractHouse, userAgents, write } = require('../util');
+
+// random userAgent
+const userAgentHeader = () => ({
+  headers: {
+    'User-Agent': userAgents[parseInt(Math.random() * userAgents.length)]
+  }
+});
 
 // config axios
-axios.defaults.headers.get['User-Agent'] =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.84 Safari/537.36';
 axios.interceptors.response.use(
   response => {
     return response.data;
@@ -41,8 +46,9 @@ class Robot {
     //   console.timeEnd('fetch time');
     // });
 
-    this.init();
-    // this.fetchDetail(121771915);
+    // this.init();
+    this.fetchDetail(121771915);
+    this.fetchDetail(120679774);
   }
 
   // init
@@ -136,7 +142,7 @@ class Robot {
     const that = this;
     return new Promise((resolve, reject) => {
       axios
-        .get(that.topicUrl + tid)
+        .get(that.topicUrl + tid, userAgentHeader())
         .then(res => {
           resolve(that.handleDetailData(res));
         })

@@ -3,14 +3,21 @@ const cheerio = require('cheerio');
 const db = require('./db');
 const { scheduleJob, extractHouse, userAgents, write } = require('../util');
 
-// random userAgent
-const userAgentHeader = () => ({
+// create random userAgent
+const createUserAgent = () => ({
   headers: {
     'User-Agent': userAgents[parseInt(Math.random() * userAgents.length)]
   }
 });
 
+// axios.interceptors.request.use(config => {
+//   // console.log(config);
+//   return config;
+// });
+
 // config axios
+axios.defaults.timeout = 1000 * 7;
+
 axios.interceptors.response.use(
   response => {
     return response.data;
@@ -21,22 +28,34 @@ axios.interceptors.response.use(
 );
 
 /**
- * @param {any} cycle detail: https://www.npmjs.com/package/node-schedule
- * @param {Number} maxPage
+ * @param {any} cycle schedule job cycle detail: https://www.npmjs.com/package/node-schedule
+ * @param {Number} maxPage one schedule job fetch max pages
+ * @param {Number} maxNum db houses max number
+ * @param {Number} delNum if max db houses number, delete how many numbers
  */
 class Robot {
   constructor(
-    cycle = { second: 50, minute: 48, hour: 0 },
-    maxPage = 10,
-    waitTime = 1000 * 10
+    cycle = { second: 0, minute: 6, hour: 0 },
+    maxPage = 3,
+    maxNum = 3,
+    delNum = 3
   ) {
+    // group list url
     this.groupPrefixUrl =
       'https://www.douban.com/group/gz020/discussion?start=';
     // group topic detail url
     this.topicUrl = 'https://www.douban.com/group/topic/';
     this.page = 0;
-    this.waitTime = waitTime;
+    this.waitTime = () => {
+      return Math.ceil(Math.random() * 10 * 1000 + Math.random() * 777);
+    };
     this.maxPage = maxPage;
+    this.maxNum = maxNum;
+    this.delNum = delNum;
+    // this.cycle = {
+    //   second: new Date().getSeconds() + 3,
+    //   minute: new Date().getMinutes()
+    // };
     this.cycle = cycle;
     this.timer = null;
 
@@ -46,38 +65,44 @@ class Robot {
     //   console.timeEnd('fetch time');
     // });
 
-    // this.init();
-    this.fetchDetail(121771915);
-    this.fetchDetail(120679774);
+    this.init();
+    // this.fetchDetail(121771915);
+    // this.fetchDetail(120679774);
   }
 
   // init
-  init() {
+  async init() {
     // if need delete
-    this.handleDelete();
+    await this.handleDelete(this.maxNum, this.delNum);
 
     // everyday at 0:00am
     scheduleJob(this.cycle, () => {
       console.log(`start scheduleJob, time: ${new Date()}`);
-      this.page = 0;
-      // every 3 second fetch data & write to db
-      this.timer = setInterval(() => {
-        console.log(`start fetchList, current page: ${this.page}`);
-        // only fetch maxPages
-        if (this.page === this.maxPage) {
-          clearInterval(this.timer);
-        }
 
-        this.fetchList().then(data => {
-          this.insertToDB(data)
-            .then(() => {
-              this.page++;
-            })
-            .catch(() => {
-              this.page++;
-            });
-        });
-      }, this.waitTime);
+      this.page = 0;
+
+      const handleFetchComplete = () => {
+        this.page++;
+        // if maxPages clear timer
+        if (this.page === this.maxPage) {
+          this.timer = null;
+          return;
+        }
+        this.timer = setTimeout(fetchAndInsert, this.waitTime());
+      };
+
+      const fetchAndInsert = async () => {
+        console.log(`start fetchList, current page: ${this.page}`);
+
+        clearTimeout(this.timer);
+        // fetch & insert
+        let data = await this.fetchList();
+        await this.insertToDB(data);
+        handleFetchComplete();
+      };
+
+      // start
+      fetchAndInsert();
     });
   }
 
@@ -86,7 +111,8 @@ class Robot {
     const that = this;
     return new Promise((resolve, reject) => {
       axios
-        .get(that.groupPrefixUrl + that.page * 25)
+        .get(that.groupPrefixUrl + that.page * 25, createUserAgent())
+        // .get(`http://localhost:3003/${that.page}.html`)
         .then(res => {
           resolve(that.handleListData(res));
         })
@@ -142,7 +168,8 @@ class Robot {
     const that = this;
     return new Promise((resolve, reject) => {
       axios
-        .get(that.topicUrl + tid, userAgentHeader())
+        .get(that.topicUrl + tid, createUserAgent())
+        // .get(`http://localhost:3003/${tid}.html`)
         .then(res => {
           resolve(that.handleDetailData(res));
         })
@@ -212,32 +239,41 @@ class Robot {
   }
 
   // judge if need delete
-  handleDelete(maxNum = 5000, delNum = 500) {
-    return db.Houses.count() > maxNum ? this.deleteDB(delNum) : false;
+  handleDelete(maxNum, delNum) {
+    db.Houses.countDocuments('tid').then(len => {
+      return len >= maxNum ? Promise.resolve(this.deleteDB(delNum)) : false;
+    });
   }
 
   // delete data from db
   deleteDB(num) {
-    const ids = [];
+    return new Promise(resolve => {
+      const ids = [];
 
-    // [{_id:123}, {_id:456}] => [123,456]
-    db.Houses.find()
-      .sort({ _id: 1 })
-      .select('tid')
-      .limit(num)
-      .exec()
-      .then(doc => {
-        doc.map(e => {
-          ids.push(e.tid);
-        });
-        db.Houses.remove({ tid: { $in: ids } }, (err, success) => {
-          if (err) {
-            console.error(err);
-          } else {
-            console.log(`success delete ${success.n} data at ${new Data()}`);
+      // [{_id:123}, {_id:456}] => [123,456]
+      db.Houses.find()
+        .sort({ _id: 1 })
+        .select('tid')
+        .limit(num)
+        .exec()
+        .then(doc => {
+          if (doc.length) {
+            doc.map(e => {
+              ids.push(e.tid);
+            });
+            db.Houses.remove({ tid: { $in: ids } }, (err, success) => {
+              if (err) {
+                console.error(err);
+              } else {
+                resolve();
+                console.log(
+                  `success delete ${success.n} data at ${new Date()}`
+                );
+              }
+            });
           }
         });
-      });
+    });
   }
 }
 

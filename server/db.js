@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // connect
-mongoose.connect('mongodb://localhost:27017/douban-house');
+mongoose.connect('mongodb://localhost:27017/douban-test');
 const db = mongoose.connection;
 db.once('error', () => {
   console.error('mongodb connect error');

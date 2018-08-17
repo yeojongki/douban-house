@@ -37,14 +37,17 @@ function extractHouse(text) {
   const areaPatt = /(天河|越秀|荔湾|海珠|番禺|白云|黄埔|从化|增城|花都|南沙)/;
   const result = {};
 
+  let price = '';
   // price
-  const prices = [];
-  resPricesPatt1 = pricesPatt1.exec(text);
-  resPricesPatt2 = pricesPatt2.exec(text);
-  resPricesPatt1 && prices.push(+resPricesPatt1[0]);
-  resPricesPatt2 && prices.push(+resPricesPatt2[3]);
-  result.prices = prices.length > 1 ? Array.from(new Set(prices)) : prices;
+  let resPricesPatt1 = pricesPatt1.exec(text);
+  let resPricesPatt2;
+  resPricesPatt1 ? (price = +resPricesPatt1[0]) : '';
 
+  // no match pricesPatt1
+  price ? '' : (resPricesPatt2 = pricesPatt2.exec(text));
+  resPricesPatt2 && price ? (price = +resPricesPatt2[3]) : '';
+
+  result.price = price;
   // contact way
   const contactTypeMap = {
     手机: 'mobile',
@@ -60,12 +63,12 @@ function extractHouse(text) {
     const contactValue = contactResult[5];
     result.contact = { type: contactType, value: contactValue };
   } else {
-    result.contact = {};
+    result.contact = null;
   }
 
   // size
   const resSize = sizePatt.exec(text);
-  result.size = resSize ? resSize[0] : null;
+  result.size = resSize ? +resSize[0].replace(/\D/g, '') : null;
 
   // model
   const resModel = modelPatt.exec(text);

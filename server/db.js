@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 // connect
-mongoose.connect('mongodb://localhost:27017/douban-test');
+mongoose.connect('mongodb://localhost:27017/douban-new');
 const db = mongoose.connection;
 db.once('error', () => {
   console.error('mongodb connect error');
@@ -18,9 +18,9 @@ const housesSchema = new mongoose.Schema({
   content: String,
   ctime: String,
   ltime: String,
-  prices: Array,
+  price: Number,
   contact: Object,
-  size: String,
+  size: Number,
   model: String,
   subway: String,
   area: String,

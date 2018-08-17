@@ -35,10 +35,11 @@ axios.interceptors.response.use(
  */
 class Robot {
   constructor(
-    cycle = { second: 0, minute: 6, hour: 0 },
-    maxPage = 3,
-    maxNum = 3,
-    delNum = 3
+    // cycle = { second: 10, minute: 27 },
+    // cycle = { second: 20, minute: 26, hour: 0 },
+    maxPage = 5,
+    maxNum = 5000,
+    delNum = 500
   ) {
     // group list url
     this.groupPrefixUrl =
@@ -52,11 +53,11 @@ class Robot {
     this.maxPage = maxPage;
     this.maxNum = maxNum;
     this.delNum = delNum;
-    // this.cycle = {
-    //   second: new Date().getSeconds() + 3,
-    //   minute: new Date().getMinutes()
-    // };
-    this.cycle = cycle;
+    // this.cycle = cycle;
+    this.cycle = {
+      second: new Date().getSeconds() + 3,
+      minute: new Date().getMinutes()
+    };
     this.timer = null;
 
     // console.time('fetch time');
@@ -73,7 +74,11 @@ class Robot {
   // init
   async init() {
     // if need delete
-    await this.handleDelete(this.maxNum, this.delNum);
+    try {
+      await this.handleDelete(this.maxNum, this.delNum);
+    } catch (e) {
+      console.error(e);
+    }
 
     // everyday at 0:00am
     scheduleJob(this.cycle, () => {
@@ -97,8 +102,14 @@ class Robot {
         clearTimeout(this.timer);
         // fetch & insert
         let data = await this.fetchList();
-        await this.insertToDB(data);
-        handleFetchComplete();
+
+        try {
+          await this.insertToDB(data);
+          handleFetchComplete();
+        } catch (e) {
+          handleFetchComplete();
+        }
+
       };
 
       // start
@@ -126,6 +137,7 @@ class Robot {
   // transform useful list data
   handleListData(html) {
     const result = [];
+    const curYear = new Date().getFullYear();
     const $ = cheerio.load(html);
     // const $trs = $('table.olt tr').eq(1);
     const $trs = $('table.olt tr');
@@ -140,16 +152,16 @@ class Robot {
           const isTitleTd = $td.hasClass('title');
           const isTimeTd = $td.hasClass('time');
           const isAuthorTd = $td.index() == 1;
-          if (isTitleTd || isAuthorTd) {
+          if (isTitleTd || isAuthorTd || isTimeTd) {
             // title & url
             if (isTitleTd) {
               const $a = $td.children('a');
               line.title = $a.attr('title');
-              line.tid = $a.attr('href').match(/[1-9]\d*/);
+              line.tid = $a.attr('href').match(/[1-9]\d*/)[0];
             }
             // time
             if (isTimeTd) {
-              line.ltime = $td.text();
+              line.ltime = `${curYear}-${$td.text()}`;
             }
             // author
             if (isAuthorTd) {

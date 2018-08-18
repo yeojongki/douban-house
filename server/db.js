@@ -27,6 +27,7 @@ const housesSchema = new mongoose.Schema({
   imgs: [String]
 });
 
+// set tid index & unique
 housesSchema.index({ tid: 1 }, { unique: true });
 
 const Houses = mongoose.model('Houses', housesSchema);

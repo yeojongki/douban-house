@@ -1,7 +1,14 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const db = require('./db');
-const { scheduleJob, extractHouse, userAgents, write } = require('../util');
+const {
+  scheduleJob,
+  extractHouse,
+  userAgents,
+  sleep,
+  easyArrDiff,
+  write
+} = require('../util');
 
 // create random userAgent
 const createUserAgent = () => ({
@@ -35,9 +42,8 @@ axios.interceptors.response.use(
  */
 class Robot {
   constructor(
-    // cycle = { second: 10, minute: 27 },
     // cycle = { second: 20, minute: 26, hour: 0 },
-    maxPage = 5,
+    maxPage = 10,
     maxNum = 5000,
     delNum = 500
   ) {
@@ -67,7 +73,6 @@ class Robot {
     // });
 
     this.init();
-    // this.fetchDetail(121771915);
     // this.fetchDetail(120679774);
   }
 
@@ -109,7 +114,6 @@ class Robot {
         } catch (e) {
           handleFetchComplete();
         }
-
       };
 
       // start
@@ -179,6 +183,7 @@ class Robot {
   fetchDetail(tid) {
     const that = this;
     return new Promise((resolve, reject) => {
+      console.log('start fetchDetail**********************');
       axios
         .get(that.topicUrl + tid, createUserAgent())
         // .get(`http://localhost:3003/${tid}.html`)
@@ -186,7 +191,7 @@ class Robot {
           resolve(that.handleDetailData(res));
         })
         .catch(err => {
-          console.error('fetch detail error');
+          console.error(`fetch id[${tid}] detail error`);
           reject(err);
         });
     });
@@ -216,35 +221,68 @@ class Robot {
     return houseInfo;
   }
 
+  // update detail info
+  async updateTopic(tid, resolve, reject) {
+    // sleep
+    await sleep(Math.ceil(Math.random() * 50 * 1000));
+    // fetch and update
+    await this.fetchDetail(tid).then(houseInfo => {
+      db.Houses.findOneAndUpdate({ tid: tid }, houseInfo, null)
+        .then(() => {
+          console.log(`success update tid '${tid}' at ${new Date()}`);
+          resolve();
+        })
+        .catch(err => {
+          console.error(
+            `findOneAndUpdate error, at ${new Date()}：${err.message}`
+          );
+          reject(err);
+        });
+    });
+  }
   // write to mongodb
   insertToDB(data) {
     let that = this;
     return new Promise((resolve, reject) => {
       if (data.length) {
-        db.Houses.insertMany(data)
+        db.Houses.insertMany(data, { ordered: false })
           .then(doc => {
             console.log(`success insert ${data.length} data at ${new Date()}`);
             // avoid fetch duplicate tids, so after insert and fetch detail
             doc.map(item => {
-              const tid = item.tid;
-              that.fetchDetail(tid).then(houseInfo => {
-                db.Houses.findOneAndUpdate({ tid: tid }, houseInfo, null)
-                  .then(() => {
-                    console.log(`success update tid '${tid}' at ${new Date()}`);
-                    resolve();
-                  })
-                  .catch(err => {
-                    console.error(
-                      `findOneAndUpdate error, at ${new Date()}：${err.message}`
-                    );
-                    reject(err);
-                  });
-              });
+              that.updateTopic(item.tid, resolve, reject);
             });
           })
           .catch(err => {
-            console.error(`insert db fail, at ${new Date()}：${err.message}`);
-            reject(err);
+            if (data.length) {
+              let errTids = [];
+              // extract tid form data
+              let originTids = [];
+              data.map(item => {
+                originTids.push(item.tid);
+              });
+
+              // error tids
+              err.writeErrors.map(item => {
+                let tidRes = item.errmsg.match(/(dup key\: \{).*(\d)+" \}/g);
+                if (tidRes) {
+                  let tid = tidRes[0].replace(/\D/g, '');
+                  errTids.push(tid);
+                }
+              });
+              console.log(`insert db fail tids：${JSON.stringify(errTids)}`);
+
+              // save success ids for fetch detail
+              let successTids = easyArrDiff(originTids, errTids);
+              console.log(`success tids: ${JSON.stringify(successTids)}`);
+              successTids.map(item => {
+                that.updateTopic(item, resolve, reject);
+              });
+              reject(err);
+            } else {
+              reject('no data');
+              console.error('have no data');
+            }
           });
       }
     });

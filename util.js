@@ -15,9 +15,7 @@ function write(path = 'file.txt', txt = 'this is the default text') {
 // sleep
 function sleep(time = 0) {
   return new Promise(resolve => {
-    setTimeout(() => {
-      resolve();
-    }, time);
+    setTimeout(resolve, time);
   });
 }
 
@@ -131,10 +129,30 @@ const userAgents = [
   'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'
 ];
 
+const easyArrDiff = (arr1, arr2) => {
+  let hash = {};
+  let result = [];
+  function handle(a, b) {
+    a.map(item => {
+      if (!b.includes(item)) {
+        hash[item] = true;
+        result.push(item);
+      }
+    });
+  }
+  if (arr1.length > arr2.length) {
+    handle(arr1, arr2);
+  } else {
+    handle(arr2, arr1);
+  }
+  return result;
+};
+
 module.exports = {
   write: write,
   sleep: sleep,
   scheduleJob: scheduleJob,
   extractHouse: extractHouse,
-  userAgents: userAgents
+  userAgents: userAgents,
+  easyArrDiff: easyArrDiff
 };

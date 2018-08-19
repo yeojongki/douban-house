@@ -8,7 +8,7 @@ const {
   sleep,
   easyArrDiff,
   write
-} = require('../util');
+} = require('./util');
 
 // create random userAgent
 const createUserAgent = () => ({

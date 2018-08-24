@@ -2,12 +2,18 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 // import registerServiceWorker from './registerServiceWorker';
+import Test from './test';
 
 class App extends Component {
   render() {
     return (
       <div>
-        <p>only this paragraph will get the style :)<a>aaaaaaaaaaaaa tag</a></p>
+        <Test large name="test"/>
+        <div className="divvv">i'm divvv</div>
+        <p>
+          only this paragraph will get the style :)
+          <a>aaaaaaaaaaaaa tag</a>
+        </p>
 
         {/* you can include <Component />s here that include
          other <p>s that don't get unexpected styles! */}
@@ -15,6 +21,7 @@ class App extends Component {
         <style jsx>{`
           p {
             color: red;
+            display: flex;
             a {
               color: pink;
             }

@@ -3,3 +3,12 @@ body {
   padding: 0;
   font-family: sans-serif;
 }
+img {
+  content: normal !important;
+}
+div {
+  height: 100px;
+  width: 100%;
+  left: calc(50vw - 100px);
+  background-color: blueviolet;
+}

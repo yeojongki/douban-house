@@ -1,3 +1,4 @@
+@import './variables.scss';
 body {
   margin: 0;
   padding: 0;
@@ -5,10 +6,4 @@ body {
 }
 img {
   content: normal !important;
-}
-div {
-  height: 100px;
-  width: 100%;
-  left: calc(50vw - 100px);
-  background-color: blueviolet;
 }

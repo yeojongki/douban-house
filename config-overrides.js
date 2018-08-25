@@ -1,6 +1,17 @@
-const { getBabelLoader } = require('react-app-rewired');
+const { getBabelLoader, injectBabelPlugin } = require('react-app-rewired');
+const path = require('path');
+
+function resolve(dir) {
+  return path.resolve(__dirname, dir);
+}
 
 module.exports = function rewire(config) {
+  // add antd-mobile
+  config = injectBabelPlugin(
+    ['import', { libraryName: 'antd-mobile', style: 'css' }],
+    config
+  );
+
   // add styled-jsx plugin
   const jsxLoader = getBabelLoader(
     config.module.rules,
@@ -18,7 +29,14 @@ module.exports = function rewire(config) {
     ]
   ].concat(babelrc.plugins || []);
   options.presets = babelrc;
-  console.log(babelrc.plugins);
 
+  // add alias
+  let originAlias = config.resolve.alias;
+  config.resolve.alias = Object.assign(originAlias, {
+    '@': resolve('src'),
+    'comp': resolve('src/components')
+  });
+
+  console.log(config.module.rules[1].oneOf);
   return config;
 };

@@ -9,6 +9,11 @@ class Layout extends React.Component {
       selectedTab: 'listTab',
       hidden: false
     };
+    this.navToSearch = this.navToSearch.bind(this);
+  }
+
+  navToSearch() {
+    console.log('todo go to the search page');
   }
 
   render() {
@@ -51,7 +56,7 @@ class Layout extends React.Component {
               });
             }}
           >
-            <TabHouseList />
+            <TabHouseList navToSearch={this.navToSearch} />
           </TabBar.Item>
           <TabBar.Item
             icon={

@@ -19,7 +19,7 @@ module.exports = function rewire(config) {
   );
   let options = jsxLoader.options;
 
-  const babelrc = require(options.presets[0]);
+  let babelrc = require(options.presets[0]);
   babelrc.plugins = [
     [
       'styled-jsx/babel',
@@ -37,6 +37,5 @@ module.exports = function rewire(config) {
     'comp': resolve('src/components')
   });
 
-  console.log(config.module.rules[1].oneOf);
   return config;
 };

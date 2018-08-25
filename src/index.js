@@ -10,10 +10,10 @@ class App extends Component {
         <Layout>
           
         </Layout>
-
         <style jsx global>{`
-          @import 'styles/index.scss';
+          @import './styles/index.scss';
         `}</style>
+
       </div>
     );
   }

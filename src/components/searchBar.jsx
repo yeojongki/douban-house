@@ -1,4 +1,5 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, Component } from 'react';
+import { withRouter } from 'react-router-dom';
 import { SearchBar, WhiteSpace } from 'antd-mobile';
 import { resolveScopedStyles } from '@/util';
 
@@ -12,17 +13,20 @@ const scoped = resolveScopedStyles(
   </scope>
 );
 
-class HSearchBar extends React.Component {
-  state = {
-    value: '美食'
-  };
+class MySearchBar extends Component {
+  componentDidMount() {
+    this.autoFocusInst.focus();
+  }
   render() {
     return (
       <Fragment>
         <SearchBar
           className={`search ${scoped.className}`}
           placeholder="Search"
-          maxLength={8}
+          maxLength={20}
+          ref={ref => (this.autoFocusInst = ref)}
+          onCancel={this.props.history.goBack}
+          onChange={val => this.props.typing(val)}
         />
         <WhiteSpace />
         {scoped.styles}
@@ -31,4 +35,4 @@ class HSearchBar extends React.Component {
   }
 }
 
-export default HSearchBar;
+export default withRouter(MySearchBar);

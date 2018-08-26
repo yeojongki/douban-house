@@ -1,12 +1,8 @@
 import React, { Fragment } from 'react';
 import { Icon } from 'antd-mobile';
 import Header from 'comp/header';
-// import SearchBar from 'comp/searchBar';
 
 export default props => {
-  // const navToSearch = ()=>{
-  //   console.log(123)
-  // }
   return (
     <Fragment>
       <Header>
@@ -17,7 +13,6 @@ export default props => {
         <div className="h__search flexbox ac jc" onClick={props.navToSearch}>
           <Icon type="search" />
           <span>请输入地铁、户型、价格等</span>
-          {/* <SearchBar /> */}
         </div>
       </Header>
       <style jsx>{`

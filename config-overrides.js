@@ -18,7 +18,6 @@ module.exports = function rewire(config) {
     rule => String(rule.test) === String(/\.(js|jsx|mjs)$/)
   );
   let options = jsxLoader.options;
-
   let babelrc = require(options.presets[0]);
   babelrc.plugins = [
     [

@@ -1,20 +1,17 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import ReactDOM from 'react-dom';
+import Router from './router';
 // import registerServiceWorker from './registerServiceWorker';
-import Layout from '@/views/layout';
 
 class App extends Component {
   render() {
     return (
-      <div>
-        <Layout>
-          
-        </Layout>
+      <Fragment>
+        <Router />
         <style jsx global>{`
           @import './styles/index.scss';
         `}</style>
-
-      </div>
+      </Fragment>
     );
   }
 }

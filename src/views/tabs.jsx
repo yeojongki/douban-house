@@ -1,6 +1,8 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom';
 import { TabBar } from 'antd-mobile';
 import TabHouseList from 'comp/tabHouseList';
+import TabMine from 'comp/tabMine';
 
 class Layout extends React.Component {
   constructor(props) {
@@ -13,7 +15,7 @@ class Layout extends React.Component {
   }
 
   navToSearch() {
-    console.log('todo go to the search page');
+    this.props.history.push('/search');
   }
 
   render() {
@@ -89,7 +91,7 @@ class Layout extends React.Component {
               });
             }}
           >
-            i'm Tab2
+            <TabMine />
           </TabBar.Item>
         </TabBar>
         <style jsx>{`
@@ -105,5 +107,5 @@ class Layout extends React.Component {
   }
 }
 
-export default Layout;
+export default withRouter(Layout);
 // export default props => <header>{props.children}</header>;

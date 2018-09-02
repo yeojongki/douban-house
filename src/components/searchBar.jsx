@@ -22,10 +22,11 @@ class MySearchBar extends Component {
       <Fragment>
         <SearchBar
           className={`search ${scoped.className}`}
-          placeholder="Search"
+          placeholder="请输入地铁、户型、价格等"
           maxLength={20}
           ref={ref => (this.autoFocusInst = ref)}
           onCancel={this.props.history.goBack}
+          onBlur={this.props.history.goBack}
           onChange={val => this.props.typing(val)}
         />
         <WhiteSpace />

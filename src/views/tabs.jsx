@@ -4,7 +4,7 @@ import { TabBar } from 'antd-mobile';
 import TabHouseList from 'comp/tabHouseList';
 import TabMine from 'comp/tabMine';
 
-class Layout extends React.Component {
+class Tabs extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -107,5 +107,5 @@ class Layout extends React.Component {
   }
 }
 
-export default withRouter(Layout);
+export default withRouter(Tabs);
 // export default props => <header>{props.children}</header>;

@@ -38,7 +38,7 @@ axios.interceptors.response.use(
  * @param {any} cycle schedule job cycle detail: https://www.npmjs.com/package/node-schedule
  * @param {Number} maxPage one schedule job fetch max pages
  * @param {Number} maxNum db houses max number
- * @param {Number} delNum if max db houses number, delete how many numbers
+ * @param {Number} delNum if over db houses max number, delete how many numbers
  */
 class Robot {
   constructor(

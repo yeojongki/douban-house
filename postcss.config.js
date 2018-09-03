@@ -25,7 +25,7 @@ module.exports = () => ({
     cssnano({
       preset: 'advanced',
       autoprefixer: false,
-      'postcss-zindex': false
+      zindex: false
     })
   ]
 });

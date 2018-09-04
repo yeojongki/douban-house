@@ -28,7 +28,7 @@ module.exports = function rewire(config) {
     ]
   ].concat(babelrc.plugins || []);
   options.presets = babelrc;
-
+  
   // add alias
   let originAlias = config.resolve.alias;
   config.resolve.alias = Object.assign(originAlias, {

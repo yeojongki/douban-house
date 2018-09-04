@@ -3,21 +3,8 @@ import { Icon } from 'antd-mobile';
 import Filters from 'comp/filters';
 
 class TabHouseList extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      fixed: false
-    };
-  }
-  fixHeader = () => {
-    this.setState({
-      fixed: !this.state.fixed
-    });
-  };
   render() {
-    const props = this.props,
-      { fixed } = this.state;
-    console.log(fixed);
+    const props = this.props;
     return (
       <Fragment>
         <header className="flexbox">
@@ -34,7 +21,8 @@ class TabHouseList extends Component {
         <style jsx>{`
           @import '../styles/variables.scss';
           header {
-            padding: 20px 0;
+            height: 85px;
+            padding-top: 15px;
             background: #fff;
           }
           .h {

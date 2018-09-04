@@ -1,144 +1,76 @@
 import React, { Component } from 'react';
 import { Menu } from 'antd-mobile';
+import { resolveScopedStyles } from '@/util';
+import { menu1, menu2, menu3, menu4 } from '@/util/filterMenuItem';
 
-const data = [
-  {
-    value: '1',
-    label: '区域',
-    children: [
-      {
-        label: '不限',
-        value: '1'
-      },
-      {
-        label: '天河',
-        value: '2'
-      },
-      {
-        label: '越秀',
-        value: '3'
-      },
-      {
-        label: '荔湾',
-        value: '4'
-      },
-      {
-        label: '海珠',
-        value: '5'
-      },
-      {
-        label: '番禺',
-        value: '6'
-      },
-      {
-        label: '白云',
-        value: '7'
-      },
-      {
-        label: '黄埔',
-        value: '8'
-      },
-      {
-        label: '从化',
-        value: '9'
-      },
-      {
-        label: '增城',
-        value: '10'
-      },
-      {
-        label: '花都',
-        value: '11'
-      },
-      {
-        label: '南沙',
-        value: '12'
-      }
-    ]
-  },
-  {
-    value: '2',
-    label: '地铁',
-    children: [
-      {
-        label: '1号线',
-        value: '1'
-      },
-      {
-        label: '2号线',
-        value: '2'
-      },
-      {
-        label: '3号线',
-        value: '3'
-      },
-      {
-        label: '4号线',
-        value: '4'
-      },
-      {
-        label: '5号线',
-        value: '5'
-      },
-      {
-        label: '6号线',
-        value: '6'
-      },
-      {
-        label: '7号线',
-        value: '7'
-      },
-      {
-        label: '8号线',
-        value: '8'
-      },
-      {
-        label: '9号线',
-        value: '9'
-      },
-      {
-        label: '13号线',
-        value: '13'
-      },
-      {
-        label: '14号线',
-        value: '14'
-      },
-      {
-        label: 'apm线',
-        value: 'APM'
-      },
-      {
-        label: '广佛线',
-        value: '广佛线'
-      }
-    ]
-  }
-];
 class Filters extends Component {
   constructor(props) {
     super(props);
+    this._initShow = {
+      area: false,
+      type: false,
+      money: false,
+      sort: false
+    };
     this.state = {
-      show: false
+      show: {
+        area: false,
+        type: false,
+        money: false,
+        sort: false
+      }
     };
   }
   handleFilterClick(type) {
-    console.log(type);
+    let { show } = this.state;
+    for (let key in show) {
+      if (key !== type) {
+        show[key] = false;
+      }
+    }
     this.setState({
-      show: !this.state.show
+      show: Object.assign(show, { [type]: true })
     });
-    this.props.fixHeader();
   }
   onChange = v => {
     console.log(v);
   };
   onMaskClick = () => {
     this.setState({
-      show: !this.state.show
+      show: Object.assign({}, this._initShow)
     });
   };
+  // check if show
+  checkShow(type) {
+    let { show } = this.state;
+    // if no type it indicates is the mask
+    if (type) {
+      return show[type] === true ? true : false;
+    } else {
+      for (let key in show) {
+        if (show[key] === true) {
+          return true;
+        }
+      }
+      return false;
+    }
+  }
   render() {
-    const { show } = this.state;
+    const scoped = resolveScopedStyles(
+      <scope>
+        <style jsx>{`
+          .mymenu {
+            visibility: hidden;
+            position: absolute;
+            left: -9999px;
+            &.show {
+              visibility: visible;
+              position: static;
+            }
+          }
+        `}</style>
+      </scope>
+    );
     return (
       <div className="filter">
         <div className="filter-h flexbox">
@@ -170,18 +102,60 @@ class Filters extends Component {
         <div className="filter-b">
           <div className="filter-b-item">
             <Menu
-              data={data}
+              className={`mymenu ${scoped.className} ${
+                this.checkShow('area') ? 'show' : ''
+              }`}
+              data={menu1}
               onChange={this.onChange}
               onOk={this.onOk}
               onCancel={this.onCancel}
               height={document.documentElement.clientHeight * 0.6}
             />
           </div>
-          <div className="filter-b-item" />
-          <div className="filter-b-item" />
-          <div className="filter-b-item" />
+          <div className="filter-b-item">
+            <Menu
+              className={`mymenu ${scoped.className} ${
+                this.checkShow('type') ? 'show' : ''
+              }`}
+              data={menu2}
+              level={1}
+              onChange={this.onChange}
+              onOk={this.onOk}
+              onCancel={this.onCancel}
+              height={document.documentElement.clientHeight * 0.24}
+            />
+          </div>
+          <div className="filter-b-item">
+            <Menu
+              className={`mymenu ${scoped.className} ${
+                this.checkShow('money') ? 'show' : ''
+              }`}
+              data={menu3}
+              level={1}
+              onChange={this.onChange}
+              onOk={this.onOk}
+              onCancel={this.onCancel}
+              height={document.documentElement.clientHeight * 0.33}
+            />
+          </div>
+          <div className="filter-b-item">
+            <Menu
+              className={`mymenu ${scoped.className} ${
+                this.checkShow('sort') ? 'show' : ''
+              }`}
+              data={menu4}
+              level={1}
+              onChange={this.onChange}
+              onOk={this.onOk}
+              onCancel={this.onCancel}
+              height={document.documentElement.clientHeight * 0.3}
+            />
+          </div>
         </div>
-        {show ? <div className="menu-mask" onClick={this.onMaskClick} /> : null}
+        <div
+          className={`menu-mask ${this.checkShow() ? 'show' : ''}`}
+          onClick={this.onMaskClick}
+        />
         <style jsx>{`
           .filter-b-item {
             position: absolute;
@@ -190,7 +164,7 @@ class Filters extends Component {
           }
           .filter {
             &-h {
-              padding: 15px 0;
+              line-height: 70px;
               background: #fff;
               &-item {
                 flex: 2;
@@ -208,16 +182,27 @@ class Filters extends Component {
               }
             }
           }
+          .mymenu {
+            display: none;
+            &.show {
+              display: block;
+            }
+          }
           .menu-mask {
             position: absolute;
-            top: 50%;
+            top: 155px;
             width: 100%;
             height: 100%;
             background-color: #000;
             opacity: 0.4;
             z-index: 79;
+            visibility: hidden;
+            &.show {
+              visibility: visible;
+            }
           }
         `}</style>
+        {scoped.styles}
       </div>
     );
   }

@@ -190,7 +190,7 @@ class Filters extends Component {
           }
           .menu-mask {
             position: absolute;
-            top: 155px;
+            top: 145px;
             width: 100%;
             height: 100%;
             background-color: #000;

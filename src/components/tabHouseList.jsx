@@ -21,7 +21,7 @@ class TabHouseList extends Component {
         <style jsx>{`
           @import '../styles/variables.scss';
           header {
-            height: 85px;
+            height: 75px;
             padding-top: 15px;
             background: #fff;
           }

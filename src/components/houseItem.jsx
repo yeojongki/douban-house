@@ -12,7 +12,7 @@ export default props => {
         <p className="house-info-price">{`价格：${house.price||'暂无'}`}</p>
       </div>
       <style jsx>{`
-        @import '../styles/mixins.scss';
+        @import '../styles/index.scss';
         .house {
           padding: 20px;
           &+.house {

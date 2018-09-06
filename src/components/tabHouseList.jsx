@@ -9,7 +9,7 @@ class TabHouseList extends Component {
     this.state = {
       refreshing: false,
       down: true,
-      height:null
+      height: null
     };
   }
   componentDidMount() {
@@ -19,7 +19,7 @@ class TabHouseList extends Component {
       let bot_h = $('.am-tabs-tab-bar-wrap').getBoundingClientRect().height;
       this.setState({
         height: document.documentElement.clientHeight - top_h - bot_h
-      })
+      });
     }, 0);
   }
   render() {
@@ -51,7 +51,7 @@ class TabHouseList extends Component {
             <span>请输入地铁、户型、价格等</span>
           </div>
         </header>
-        <Filters fixHeader={this.fixHeader} />
+        <Filters />
         <PullToRefresh
           damping={60}
           ref={el => (this.ptr = el)}

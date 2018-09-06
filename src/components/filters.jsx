@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Menu } from 'antd-mobile';
+import { Menu, Icon } from 'antd-mobile';
 import { resolveScopedStyles } from '@/util';
 import { menu1, menu2, menu3, menu4 } from '@/util/filterMenuItem';
 
@@ -68,32 +68,48 @@ class Filters extends Component {
               position: static;
             }
           }
+          .icon-arrow {
+            vertical-align: middle;
+            width: 24px;
+            height: 24px;
+            transition: all 0.3s;
+          }
         `}</style>
       </scope>
     );
+    const { area, type, money, sort } = this.state.show;
     return (
       <div className="filter">
         <div className="filter-h flexbox">
           <div
-            className="filter-h-item"
+            className={`filter-h-item ${area ? 'active' : ''}`}
             onClick={() => this.handleFilterClick('area')}
           >
             区域
           </div>
+          <i className="icon-wrap">
+            <Icon type="down" className={`icon-arrow ${scoped.className}`} />
+          </i>
           <div
-            className="filter-h-item"
+            className={`filter-h-item type ${type ? 'active' : ''}`}
             onClick={() => this.handleFilterClick('type')}
           >
             出租类型
           </div>
+          <i className="icon-wrap">
+            <Icon type="down" className={`icon-arrow ${scoped.className}`} />
+          </i>
           <div
-            className="filter-h-item"
+            className={`filter-h-item ${money ? 'active' : ''}`}
             onClick={() => this.handleFilterClick('money')}
           >
             租金
           </div>
+          <i className="icon-wrap">
+            <Icon type="down" className={`icon-arrow ${scoped.className}`} />
+          </i>
           <div
-            className="filter-h-item sort"
+            className={`filter-h-item sort ${sort ? 'active' : ''}`}
             onClick={() => this.handleFilterClick('sort')}
           >
             icon
@@ -157,18 +173,30 @@ class Filters extends Component {
           onClick={this.onMaskClick}
         />
         <style jsx>{`
-          .filter-b-item {
-            position: absolute;
-            z-index: 80 !important;
-            width: 100%;
-          }
+          @import '../styles/mixins.scss';
           .filter {
             &-h {
               line-height: 70px;
               background: #fff;
               &-item {
+                position: relative;
                 flex: 2;
                 text-align: center;
+                & + .icon-wrap {
+                  margin-left: -4.2em;
+                  transition: all 0.3s;
+                }
+                &.type {
+                  & + .icon-wrap {
+                    margin-left: -3.2em;
+                  }
+                }
+                &.active {
+                  & + .icon-wrap {
+                    transform: rotate(180deg);
+                    transform-origin: center center;
+                  }
+                }
                 &.sort {
                   flex: 1;
                 }
@@ -178,14 +206,11 @@ class Filters extends Component {
               position: absolute;
               z-index: 80 !important;
               width: 100%;
-              &-menu {
+              &-item {
+                position: absolute;
+                z-index: 80 !important;
+                width: 100%;
               }
-            }
-          }
-          .mymenu {
-            display: none;
-            &.show {
-              display: block;
             }
           }
           .menu-mask {

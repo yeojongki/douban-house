@@ -122,7 +122,7 @@ class Filters extends Component {
               onChange={this.onChange}
               onOk={this.onOk}
               onCancel={this.onCancel}
-              height={document.documentElement.clientHeight * 0.24}
+              height={document.documentElement.clientHeight * 0.27}
             />
           </div>
           <div className="filter-b-item">
@@ -148,7 +148,7 @@ class Filters extends Component {
               onChange={this.onChange}
               onOk={this.onOk}
               onCancel={this.onCancel}
-              height={document.documentElement.clientHeight * 0.3}
+              height={document.documentElement.clientHeight * 0.27}
             />
           </div>
         </div>

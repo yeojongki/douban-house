@@ -13,12 +13,11 @@ module.exports = function rewire(config) {
   );
 
   // add styled-jsx plugin
-  const jsxLoader = getBabelLoader(
+  const babelOptions = getBabelLoader(
     config.module.rules,
     rule => String(rule.test) === String(/\.(js|jsx|mjs)$/)
-  );
-  let options = jsxLoader.options;
-  let babelrc = require(options.presets[0]);
+  ).options;
+  let babelrc = require(babelOptions.presets[0]);
   babelrc.plugins = [
     [
       'styled-jsx/babel',
@@ -27,8 +26,8 @@ module.exports = function rewire(config) {
       }
     ]
   ].concat(babelrc.plugins || []);
-  options.presets = babelrc;
-  
+  babelOptions.presets = babelrc;
+
   // add alias
   let originAlias = config.resolve.alias;
   config.resolve.alias = Object.assign(originAlias, {

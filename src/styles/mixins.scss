@@ -1,0 +1,37 @@
+// triangle
+@mixin triangle($direction: top, $size: 7px, $borderColor: darkgray) {
+  content: '';
+  height: 0;
+  width: 0;
+  @if $direction == top {
+    border-bottom: $size solid $borderColor;
+    border-left: $size dashed transparent;
+    border-right: $size dashed transparent;
+  } @else if $direction == right {
+    border-left: $size solid $borderColor;
+    border-top: $size dashed transparent;
+    border-bottom: $size dashed transparent;
+  } @else if $direction == bottom {
+    border-top: $size solid $borderColor;
+    border-left: $size dashed transparent;
+    border-right: $size dashed transparent;
+  } @else if $direction == left {
+    border-right: $size solid $borderColor;
+    border-top: $size dashed transparent;
+    border-bottom: $size dashed transparent;
+  }
+}
+
+// text ellipsis
+@mixin ellipsis($line) {
+  @if ($line==1) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  } @else {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: $line;
+    overflow: hidden;
+  }
+}

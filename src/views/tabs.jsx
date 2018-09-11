@@ -23,7 +23,7 @@ class Tabs extends React.Component {
       <div className="layout">
         <TabBar
           unselectedTintColor="#949494"
-          tintColor="#00B51D"
+          tintColor="#108ee9"
           barTintColor="white"
           hidden={this.state.hidden}
         >

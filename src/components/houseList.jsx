@@ -6,7 +6,7 @@ export default props => {
   return list.length ? (
     <div className="list">
       {list.map(item => (
-        <HouseItem house={item} key={item.tid}/>
+        <HouseItem house={item} key={item.tid} />
       ))}
       <style jsx>{`
         .list {

@@ -72,7 +72,6 @@ class Filters extends Component {
             vertical-align: middle;
             width: 24px;
             height: 24px;
-            transition: all 0.3s;
           }
         `}</style>
       </scope>
@@ -173,32 +172,31 @@ class Filters extends Component {
           onClick={this.onMaskClick}
         />
         <style jsx>{`
-          @import '../styles/mixins.scss';
+          @import '../styles/index.scss';
           .filter {
             &-h {
               line-height: 70px;
               background: #fff;
               &-item {
                 position: relative;
-                flex: 2;
+                flex: 1;
                 text-align: center;
                 & + .icon-wrap {
-                  margin-left: -4.2em;
-                  transition: all 0.3s;
+                  margin-left: -80px;
+                  transition: transform 0.3s;
                 }
                 &.type {
                   & + .icon-wrap {
-                    margin-left: -3.2em;
+                    margin-left: -50px;
                   }
                 }
                 &.active {
+                  color: $main-color;
                   & + .icon-wrap {
                     transform: rotate(180deg);
                     transform-origin: center center;
+                    color: $main-color;
                   }
-                }
-                &.sort {
-                  flex: 1;
                 }
               }
             }

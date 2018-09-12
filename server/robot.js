@@ -42,7 +42,7 @@ axios.interceptors.response.use(
  */
 class Robot {
   constructor(
-    // cycle = { second: 20, minute: 26, hour: 0 },
+    cycle = { second: 0, minute: 0, hour: 0 },
     maxPage = 10,
     maxNum = 5000,
     delNum = 500
@@ -59,11 +59,11 @@ class Robot {
     this.maxPage = maxPage;
     this.maxNum = maxNum;
     this.delNum = delNum;
-    // this.cycle = cycle;
-    this.cycle = {
-      second: new Date().getSeconds() + 3,
-      minute: new Date().getMinutes()
-    };
+    this.cycle = cycle;
+    // this.cycle = {
+    //   second: new Date().getSeconds() + 3,
+    //   minute: new Date().getMinutes()
+    // };
     this.timer = null;
 
     // console.time('fetch time');

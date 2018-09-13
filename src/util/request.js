@@ -1,6 +1,6 @@
-import axios from "axios";
+import axios from 'axios';
 // import Cookie from "js-cookie";
-const BASE_URL = "api";
+const BASE_URL = '/api';
 
 // axios.defaults.withCredentials = true;
 // 创建axios实例
@@ -12,7 +12,7 @@ const service = axios.create({
 // request拦截器
 service.interceptors.request.use(
   config => {
-    config.headers["Content-type"] = "application/json";
+    config.headers['Content-type'] = 'application/json';
     return config;
   },
   error => {
@@ -32,10 +32,10 @@ service.interceptors.response.use(
   },
   error => {
     if (
-      error.message === "Network Error" ||
-      error.message === "timeout of 15000ms exceeded"
+      error.message === 'Network Error' ||
+      error.message === 'timeout of 15000ms exceeded'
     ) {
-      error.message = "服务器出错，请联系管理员";
+      error.message = '服务器出错，请联系管理员';
       console.error.$toast(error.message);
     }
 

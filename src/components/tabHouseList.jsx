@@ -1,8 +1,8 @@
-import React, { Fragment, Component } from "react";
-import { Icon, PullToRefresh, ListView } from "antd-mobile";
-import Filters from "comp/filters";
-import HouseItem from "./houseItem";
-import { GetList } from "@/api";
+import React, { Fragment, Component } from 'react';
+import { Icon, PullToRefresh, ListView } from 'antd-mobile';
+import Filters from 'comp/filters';
+import HouseItem from './houseItem';
+import { GetList } from '@/api';
 
 class TabHouseList extends Component {
   constructor(props) {
@@ -16,8 +16,8 @@ class TabHouseList extends Component {
       isLoading: false,
       height: null,
       hasMore: true,
-      page: 1,
-      size: 10
+      footerText: 'Loading...',
+      page: 1
     };
   }
 
@@ -34,8 +34,8 @@ class TabHouseList extends Component {
 
     setTimeout(() => {
       const $ = el => document.querySelector(el);
-      let top_h = $(".filter").getBoundingClientRect().bottom;
-      let bot_h = $(".am-tabs-tab-bar-wrap").getBoundingClientRect().height;
+      let top_h = $('.filter').getBoundingClientRect().bottom;
+      let bot_h = $('.am-tabs-tab-bar-wrap').getBoundingClientRect().height;
       this.setState({
         height: document.documentElement.clientHeight - top_h - bot_h
       });
@@ -43,7 +43,7 @@ class TabHouseList extends Component {
   }
 
   // handle get house list
-  async handleGetList(page, size = 10) {
+  async handleGetList(page, size = 20) {
     this.setState({ isLoading: true });
     let dataArr;
     try {
@@ -56,9 +56,14 @@ class TabHouseList extends Component {
 
   // refresh event
   onRefresh = () => {
-    this.setState({ page: 1, refreshing: true, isLoading: true });
+    this.setState({
+      page: 1,
+      refreshing: true,
+      isLoading: true,
+      footerText: 'Loading...'
+    });
     this.handleGetList(this.state.page).then(list => {
-      if(list.length) {
+      if (list.length) {
         this.setState({
           dataSource: this.state.dataSource.cloneWithRows(list),
           isLoading: false,
@@ -87,7 +92,8 @@ class TabHouseList extends Component {
         // no more
         this.setState({
           hasMore: false,
-          isLoading: false
+          isLoading: false,
+          footerText: '没有更多了哦~'
         });
       }
     });
@@ -114,8 +120,8 @@ class TabHouseList extends Component {
         <ListView
           dataSource={this.state.dataSource}
           renderFooter={() => (
-            <div style={{ padding: 10, textAlign: "center" }}>
-              {this.state.isLoading ? "Loading..." : "没有更多了哦~"}
+            <div style={{ padding: 10, textAlign: 'center' }}>
+              {this.state.footerText}
             </div>
           )}
           renderRow={row}
@@ -133,7 +139,7 @@ class TabHouseList extends Component {
           pageSize={5}
         />
         <style jsx>{`
-          @import "../styles/variables.scss";
+          @import '../styles/variables.scss';
           header {
             height: 75px;
             padding-top: 15px;

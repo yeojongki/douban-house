@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { List } from 'antd-mobile';
 import SwipeableViews from 'react-swipeable-views';
 import { autoPlay } from 'react-swipeable-views-utils';
@@ -16,7 +16,7 @@ const scoped = resolveScopedStyles(
         width: 80px;
         height: 80px;
         border-radius: 50%;
-        display: inline-block;
+        display: block;
         margin-right: 15px;
         float: left;
       }
@@ -60,20 +60,26 @@ class HouseDetail extends Component {
     return (
       <div className="house">
         <div className="carousel">
-          <AutoPlaySwipeableViews
-            resistance
-            index={index}
-            onChangeIndex={this.handleChangeIndex}
-          >
-            {house.imgs.map(i => (
-              <ImgProxy src={i} key={i} />
-            ))}
-          </AutoPlaySwipeableViews>
-          <Pagination
-            dots={house.imgs.length}
-            index={index}
-            onChangeIndex={this.handleChangeIndex}
-          />
+          {house.imgs.length ? (
+            <Fragment>
+              <AutoPlaySwipeableViews
+                resistance
+                index={index}
+                onChangeIndex={this.handleChangeIndex}
+              >
+                {house.imgs.map(i => (
+                  <ImgProxy src={i} key={i} />
+                ))}
+              </AutoPlaySwipeableViews>
+              <Pagination
+                dots={house.imgs.length}
+                index={index}
+                onChangeIndex={this.handleChangeIndex}
+              />
+            </Fragment>
+          ) : (
+            <ImgProxy />
+          )}
         </div>
         <div className="house-info">
           <h3 className="house-info-title">
@@ -83,12 +89,12 @@ class HouseDetail extends Component {
           <List className={`house-info-person ${scoped.className}`}>
             <List.Item className={`row ${scoped.className}`} arrow="horizontal">
               <ImgProxy
-                src={house.imgs[0]}
+                src={house.userface}
                 className={`avatar ${scoped.className}`}
               />
               <div className="name-wrap">
                 <span>{house.author}</span>
-                <span>{house.ltime}</span>
+                <span>{house.ctime}</span>
               </div>
             </List.Item>
           </List>

@@ -24,7 +24,8 @@ const housesSchema = new mongoose.Schema({
   model: String,
   subway: String,
   area: String,
-  imgs: [String]
+  imgs: [String],
+  userface: String
 });
 
 // set tid index & unique

@@ -66,14 +66,7 @@ class Robot {
     // };
     this.timer = null;
 
-    // console.time('fetch time');
-    // this.fetchList().then(data => {
-    //   this.insertToDB(data);
-    //   console.timeEnd('fetch time');
-    // });
-
     this.init();
-    // this.fetchDetail(120679774);
   }
 
   // init
@@ -183,10 +176,9 @@ class Robot {
   fetchDetail(tid) {
     const that = this;
     return new Promise((resolve, reject) => {
-      console.log('start fetchDetail**********************');
+      console.log(`start fetchDetail at ${new Date()}`);
       axios
         .get(that.topicUrl + tid, createUserAgent())
-        // .get(`http://localhost:3003/${tid}.html`)
         .then(res => {
           resolve(that.handleDetailData(res));
         })
@@ -204,10 +196,12 @@ class Robot {
       .text()
       .trim();
     const cTime = $('#content h3 .color-green').text();
+    const userface = $('.user-face img').attr('src');
     // extract useful infomations
     let houseInfo = extractHouse(text);
     houseInfo.content = text;
     houseInfo.ctime = cTime;
+    houseInfo.userface = userface;
 
     //if have images, add to infomations
     const $imgs = $('#link-report img');
@@ -224,12 +218,12 @@ class Robot {
   // update detail info
   async updateTopic(tid, resolve, reject) {
     // sleep
-    await sleep(Math.ceil(Math.random() * 50 * 1000));
+    await sleep(Math.ceil(Math.random() * 50 * 1000) + 5000);
     // fetch and update
     await this.fetchDetail(tid).then(houseInfo => {
       db.Houses.findOneAndUpdate({ tid: tid }, houseInfo, null)
         .then(() => {
-          console.log(`success update tid '${tid}' at ${new Date()}`);
+          console.log(`success update tid ${tid}`);
           resolve();
         })
         .catch(err => {

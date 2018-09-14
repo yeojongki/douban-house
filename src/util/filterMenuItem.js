@@ -157,7 +157,7 @@ export const menu3 = [
 
 export const menu4 = [
   {
-    label: '默认排序',
+    label: '有图片',
     value: '1'
   },
   {

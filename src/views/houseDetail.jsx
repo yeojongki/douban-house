@@ -16,11 +16,13 @@ const scoped = resolveScopedStyles(
         width: 80px;
         height: 80px;
         border-radius: 50%;
+        display: inline-block;
+        margin-right: 15px;
+        float: left;
       }
     `}</style>
   </scope>
 );
-
 class HouseDetail extends Component {
   constructor(props) {
     super(props);
@@ -31,7 +33,6 @@ class HouseDetail extends Component {
     } = props;
     this.id = id;
     this.state = {
-      imgHeight: 176,
       index: 0,
       house: {
         imgs: []
@@ -48,7 +49,6 @@ class HouseDetail extends Component {
   componentDidMount() {
     GetHouseById(this.id).then(res => {
       if (res) {
-        console.log(res);
         this.setState({
           house: res
         });
@@ -76,28 +76,56 @@ class HouseDetail extends Component {
           />
         </div>
         <div className="house-info">
-          <h3 className="house-info-title">{house.title}</h3>
-          <List className="house-info-person">
+          <h3 className="house-info-title">
+            {house.title}
+            <div className="block-line" />
+          </h3>
+          <List className={`house-info-person ${scoped.className}`}>
             <List.Item className={`row ${scoped.className}`} arrow="horizontal">
               <ImgProxy
                 src={house.imgs[0]}
-                circle
                 className={`avatar ${scoped.className}`}
               />
+              <div className="name-wrap">
+                <span>{house.author}</span>
+                <span>{house.ltime}</span>
+              </div>
             </List.Item>
           </List>
         </div>
         <style jsx>{`
-          body {
-            background: #fff;
-          }
           .house {
+            height: 100vh;
+            background: #fff;
             &-info {
               padding: 0 20px;
+              &-title {
+                position: relative;
+                margin: 0;
+                padding: 20px 0 0 15px;
+                .block-line {
+                  position: absolute;
+                  width: 100%;
+                  height: 2px;
+                  background-color: #fff;
+                  margin-left: -20px;
+                  bottom: -2px;
+                  z-index: 2;
+                }
+              }
+              .name-wrap {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                float: left;
+                font-size: 14px;
+                margin-top: 5px;
+              }
             }
           }
           .carousel {
             position: relative;
+            min-height: 450px;
           }
         `}</style>
         {scoped.styles}

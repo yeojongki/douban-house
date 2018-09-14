@@ -1,31 +1,30 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import ImgProxy from 'comp/imgProxy';
+import { resolveScopedStyles } from '@/util';
+
+const scoped = resolveScopedStyles(
+  <scope>
+    <style jsx>{`
+      .thumb {
+        width: 200px;
+        height: 120px;
+        border-radius: 7px;
+      }
+    `}</style>
+  </scope>
+);
 
 export default props => {
   const { house } = props;
-  let img = house.imgs[0];
-  let imgSrc = img
-    ? img.replace(/https:\/\//g, 'https://images.weserv.nl/?url=')
-    : '';
   return (
     <Link to={'/detail/' + house.tid}>
       <div className="house flexbox">
         <div className="house-img">
-          {imgSrc ? (
-            <img
-              src={img.replace(/https:\/\//g, 'https://images.weserv.nl/?url=')}
-              alt=""
-            />
-          ) : (
-            <div
-              className="img"
-              style={{
-                backgroundImage: 'url(//img.yeojongki.cn/logo.png)',
-                backgroundColor: '#f3f3f3'
-              }}
-              alt=""
-            />
-          )}
+          <ImgProxy
+            src={house.imgs[0]}
+            className={`thumb ${scoped.className}`}
+          />
         </div>
         <div className="house-info flexbox">
           <h3 className="house-info-title">{house.title}</h3>
@@ -41,11 +40,6 @@ export default props => {
             &-img {
               flex: 1;
               margin-right: 15px;
-              img,
-              .img {
-                width: 200px;
-                height: 120px;
-              }
             }
             &-info {
               flex: 4;
@@ -65,6 +59,7 @@ export default props => {
           }
         `}</style>
       </div>
+      {scoped.styles}
     </Link>
   );
 };

@@ -103,7 +103,6 @@ class TabHouseList extends Component {
     const row = rowData => {
       return <HouseItem house={rowData} />;
     };
-    const props = this.props;
     return (
       <Fragment>
         <header className="flexbox">
@@ -111,7 +110,10 @@ class TabHouseList extends Component {
             <Icon type="ellipsis" className="h__location__icon" />
             <span>广州</span>
           </div>
-          <div className="h__search flexbox ac jc" onClick={props.navToSearch}>
+          <div
+            className="h__search flexbox ac jc"
+            onClick={this.props.navToSearch}
+          >
             <Icon type="search" />
             <span>请输入地铁、户型、价格等</span>
           </div>

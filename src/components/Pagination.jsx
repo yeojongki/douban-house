@@ -11,7 +11,7 @@ const styles = {
   },
   inner: {
     backgroundColor: 'rgba(0,0,0,.6)',
-    padding: 4,
+    padding: '5px 10px',
     borderRadius: 5,
     color: '#fff'
   }

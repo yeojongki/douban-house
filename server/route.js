@@ -27,6 +27,7 @@ router.get('/list', async ctx => {
 
   try {
     const list = await db.Houses.find(null, { _id: 0, __v: 0 })
+      .sort({ ltime: -1 })
       .limit(+size)
       .skip((page - 1) * size);
     ctx.body = successCtx(list);

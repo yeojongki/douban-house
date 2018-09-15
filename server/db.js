@@ -19,13 +19,13 @@ const housesSchema = new mongoose.Schema({
   ctime: String,
   ltime: String,
   price: Number,
-  contact: Object,
-  size: Number,
-  model: String,
+  contact: Object, // 联系方式
+  size: Number, // 面积
+  model: String, // 房型
   subway: String,
-  area: String,
+  area: String, // 地区
   imgs: [String],
-  userface: String
+  userface: String // 头像
 });
 
 // set tid index & unique

@@ -98,6 +98,20 @@ class HouseDetail extends Component {
               </div>
             </List.Item>
           </List>
+          <div className="house-info-detail flexbox">
+            <div className="item size flexbox">
+              <h4>{house.model || '暂无'}</h4>
+              <span>房型</span>
+            </div>
+            <div className="item area flexbox">
+              <h4>{house.size || '暂无'}</h4>
+              <span>总面积</span>
+            </div>
+            <div className="item money flexbox">
+              <h4>{house.money || '暂无'}</h4>
+              <span>价格</span>
+            </div>
+          </div>
         </div>
         <style jsx>{`
           .house {
@@ -117,6 +131,25 @@ class HouseDetail extends Component {
                   margin-left: -20px;
                   bottom: -2px;
                   z-index: 2;
+                }
+              }
+              &-detail {
+                .item {
+                  flex: 1;
+                  text-align: center;
+                  flex-direction: column;
+                  h4 {
+                    font-size: 30px;
+                    white-space: nowrap;
+                  }
+                  span {
+                    color: darkgray;
+                  }
+                  &.money {
+                    h4 {
+                      color: red;
+                    }
+                  }
                 }
               }
               .name-wrap {

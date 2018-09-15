@@ -1,8 +1,8 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { TabBar } from 'antd-mobile';
-import TabHouseList from 'comp/tabHouseList';
-import TabMine from 'comp/tabMine';
+import TabHouseList from 'comp/TabHouseList';
+import TabMine from 'comp/TabMine';
 
 class Tabs extends React.Component {
   constructor(props) {

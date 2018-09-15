@@ -4,7 +4,7 @@ import SwipeableViews from 'react-swipeable-views';
 import { autoPlay } from 'react-swipeable-views-utils';
 import Pagination from 'comp/Pagination';
 import { GetHouseById } from '@/api';
-import ImgProxy from 'comp/imgProxy';
+import ImgProxy from 'comp/ImgProxy';
 import { resolveScopedStyles } from '@/util';
 
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);

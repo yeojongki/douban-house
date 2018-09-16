@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { List } from 'antd-mobile';
+import { List, Button, Icon } from 'antd-mobile';
 import SwipeableViews from 'react-swipeable-views';
 import { autoPlay } from 'react-swipeable-views-utils';
 import Pagination from 'comp/Pagination';
@@ -59,7 +59,7 @@ class HouseDetail extends Component {
     let { house, index } = this.state;
     return (
       <div className="house">
-        <div className="carousel">
+        <section className="house-carousel">
           {house.imgs.length ? (
             <Fragment>
               <AutoPlaySwipeableViews
@@ -80,8 +80,8 @@ class HouseDetail extends Component {
           ) : (
             <ImgProxy />
           )}
-        </div>
-        <div className="house-info">
+        </section>
+        <section className="house-info">
           <h3 className="house-info-title">
             {house.title}
             <div className="block-line" />
@@ -108,15 +108,46 @@ class HouseDetail extends Component {
               <span>总面积</span>
             </div>
             <div className="item money flexbox">
-              <h4>{house.money || '暂无'}</h4>
+              <h4>{house.price || '暂无'}</h4>
               <span>价格</span>
             </div>
           </div>
+        </section>
+        <section className="house-origin">{house.content}</section>
+
+        <div className="test-wrap">
+          <div className="test" />
+          <div className="div" style={{ margin: '10px 0px', height: 10 }} />
+          <div className="test2" />
         </div>
+
+        <footer className="house-ft flexbox">
+          <div className="border1px" />
+          <div className="ft-item left flexbox">
+            <div className="ft-item-wx flexbox">
+              <Icon type="ellipsis" />
+              <p>微信</p>
+            </div>
+            <div className="ft-item-phone flexbox">
+              <Icon type="ellipsis" />
+              <p>电话</p>
+            </div>
+          </div>
+          <div className="ft-item flexbox right">
+            <Button type="ghost" size="small" inline={true} icon="ellipsis">
+              收藏
+            </Button>
+          </div>
+        </footer>
         <style jsx>{`
+          @import '../styles/mixins.scss';
           .house {
             height: 100vh;
             background: #fff;
+            &-carousel {
+              position: relative;
+              min-height: 450px;
+            }
             &-info {
               padding: 0 20px;
               &-title {
@@ -136,11 +167,16 @@ class HouseDetail extends Component {
               &-detail {
                 .item {
                   flex: 1;
+                  max-width: 33.33%;
                   text-align: center;
                   flex-direction: column;
                   h4 {
-                    font-size: 30px;
+                    /* prettier-ignore*/
+                    font-size: 18PX;
+                    margin: 20px;
                     white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                   }
                   span {
                     color: darkgray;
@@ -157,14 +193,43 @@ class HouseDetail extends Component {
                 flex-direction: column;
                 justify-content: center;
                 float: left;
-                font-size: 14px;
-                margin-top: 5px;
+                /* prettier-ignore*/
+                font-size: 14PX;
               }
             }
-          }
-          .carousel {
-            position: relative;
-            min-height: 450px;
+            &-origin {
+              padding: 25px;
+            }
+            &-ft {
+              box-sizing: border-box;
+              position: fixed;
+              bottom: 0;
+              width: 100%;
+              background: #fff;
+              padding: 20px;
+              .border1px {
+                @include border1px();
+              }
+              .ft-item {
+                &.left {
+                  flex: 2;
+                }
+                &.right {
+                  flex: 1;
+                  align-items: center;
+                  justify-content: flex-end;
+                }
+                &-wx,
+                &-phone {
+                  flex-direction: column;
+                  justify-content: center;
+                  flex: 1;
+                  p {
+                    margin: 0;
+                  }
+                }
+              }
+            }
           }
         `}</style>
         {scoped.styles}

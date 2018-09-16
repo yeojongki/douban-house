@@ -51,7 +51,6 @@ class Tabs extends React.Component {
               />
             }
             selected={this.state.selectedTab === 'listTab'}
-            badge={1}
             onPress={() => {
               this.setState({
                 selectedTab: 'listTab'
@@ -83,7 +82,6 @@ class Tabs extends React.Component {
             }
             title="我的"
             key="mineTab"
-            badge={'new'}
             selected={this.state.selectedTab === 'mineTab'}
             onPress={() => {
               this.setState({

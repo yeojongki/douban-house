@@ -28,6 +28,7 @@ class Filters extends Component {
         show[key] = false;
       }
     }
+    this.props.open();
     this.setState({
       show: Object.assign(show, { [type]: true })
     });
@@ -39,6 +40,7 @@ class Filters extends Component {
     this.setState({
       show: Object.assign({}, this._initShow)
     });
+    this.props.close();
   };
   // check if show
   checkShow(type) {

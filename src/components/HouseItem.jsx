@@ -47,7 +47,8 @@ export default props => {
               justify-content: space-between;
               &-title {
                 @include ellipsis(2);
-                font-size: 14px;
+                /* prettier-ignore */
+                font-size: 14PX;
                 margin: 0;
               }
               &-price {

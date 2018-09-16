@@ -1,4 +1,5 @@
 import React, { Fragment, Component } from 'react';
+import ReactDOM from 'react-dom';
 import { Icon, PullToRefresh, ListView } from 'antd-mobile';
 import Filters from 'comp/Filters';
 import BackTop from 'comp/BackTop';
@@ -116,6 +117,16 @@ class TabHouseList extends Component {
     }
   }
 
+  // when filter menus open, change `listview` style `overflow` to 'hidden'
+  handleFilterOpen = () => {
+    ReactDOM.findDOMNode(this.lv).style.overflow = 'hidden';
+  };
+
+  // filter menus close reset
+  handleFilterClose = () => {
+    ReactDOM.findDOMNode(this.lv).style.overflow = 'auto';
+  };
+
   render() {
     const row = rowData => {
       return <HouseItem house={rowData} />;
@@ -135,7 +146,7 @@ class TabHouseList extends Component {
             <span>请输入地铁、户型、价格等</span>
           </div>
         </header>
-        <Filters />
+        <Filters open={this.handleFilterOpen} close={this.handleFilterClose} />
         <ListView
           style={{
             height: this.state.height

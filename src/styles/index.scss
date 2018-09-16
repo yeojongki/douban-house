@@ -25,3 +25,7 @@ img {
     justify-content: center;
   }
 }
+
+.border1px {
+  @include border1px();
+}

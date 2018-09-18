@@ -8,6 +8,7 @@ import { GetHouseById } from '@/api';
 import ImgProxy from 'comp/ImgProxy';
 import { resolveScopedStyles } from '@/util';
 
+const douban_prefix = `https://www.douban.com/group/topic/`;
 const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 const scoped = resolveScopedStyles(
@@ -23,6 +24,9 @@ const scoped = resolveScopedStyles(
       }
       .center {
         margin: 0 auto;
+      }
+      .collect-btn {
+        margin-right: 20px;
       }
     `}</style>
   </scope>
@@ -161,14 +165,32 @@ class HouseDetail extends Component {
             </div>
           </div>
           <div className="ft-item flexbox right">
-            <Button type="ghost" size="small" inline={true} icon="ellipsis">
+            <Button
+              type="warning"
+              size="small"
+              inline={true}
+              icon="ellipsis"
+              className={`collect-btn ${scoped.className}`}
+            >
               收藏
+            </Button>
+            <Button
+              type="ghost"
+              size="small"
+              inline={true}
+              icon="right"
+              onClick={() =>
+                (window.location.href = `${douban_prefix + house.tid}`)
+              }
+            >
+              原贴
             </Button>
           </div>
         </footer>
         <style jsx>{`
           @import '../styles/mixins.scss';
           .house {
+            box-sizing: border-box;
             min-height: 100vh;
             background: #fff;
             padding-bottom: 150px;
@@ -239,7 +261,7 @@ class HouseDetail extends Component {
               padding: 20px;
               .ft-item {
                 &.left {
-                  flex: 2;
+                  flex: 1;
                 }
                 &.right {
                   flex: 1;

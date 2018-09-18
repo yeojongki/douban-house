@@ -18,7 +18,10 @@ class Filters extends Component {
         type: false,
         money: false,
         sort: false
-      }
+      },
+      areaText: null,
+      typeText: null,
+      moneyText: null
     };
   }
   handleFilterClick(type) {
@@ -33,15 +36,73 @@ class Filters extends Component {
       show: Object.assign(show, { [type]: true })
     });
   }
-  onChange = v => {
-    console.log(v);
-  };
-  onMaskClick = () => {
+
+  // set menu show to `false`
+  reset() {
     this.setState({
       show: Object.assign({}, this._initShow)
     });
+  }
+
+  onChange = (type, v) => {
+    let label;
+    switch (type) {
+      case 'area':
+        menu1.forEach(item => {
+          // area handler
+          if (item.value === 'area') {
+            item.children.forEach(cItem => {
+              if (v[1] === cItem.label) {
+                label = cItem.label;
+                return;
+              }
+            });
+            return;
+          } else if (item.value === 'subway') {
+            item.children.forEach(cItem => {
+              if (v[1] === cItem.value) {
+                label = cItem.label;
+                return;
+              }
+            });
+          }
+        });
+        this.setState({ areaText: label });
+        break;
+      case 'type':
+        menu2.forEach(item => {
+          // type handler
+          if (item.value === v[0]) {
+            label = item.label;
+            return;
+          }
+        });
+        this.setState({ typeText: label });
+        break;
+      case 'money':
+        menu3.forEach(item => {
+          // type handler
+          if (item.value === v[0]) {
+            label = item.label;
+            return;
+          }
+        });
+        this.setState({ moneyText: label });
+        break;
+
+      default:
+        break;
+    }
+    this.props.change(type, v);
+    this.reset();
+  };
+
+  // filter menus mask click
+  onMaskClick = () => {
+    this.reset();
     this.props.close();
   };
+
   // check if show
   checkShow(type) {
     let { show } = this.state;
@@ -78,33 +139,38 @@ class Filters extends Component {
         `}</style>
       </scope>
     );
-    const { area, type, money, sort } = this.state.show;
+    const {
+      show: { area, type, money, sort },
+      areaText,
+      typeText,
+      moneyText
+    } = this.state;
     return (
       <div className="filter">
         <div className="filter-h flexbox">
           <div
-            className={`filter-h-item ${area ? 'active' : ''}`}
+            className={`filter-h-item ${area || areaText ? 'active' : ''}`}
             onClick={() => this.handleFilterClick('area')}
           >
-            区域
+            {this.state.areaText || '区域'}
           </div>
           <i className="icon-wrap">
             <Icon type="down" className={`icon-arrow ${scoped.className}`} />
           </i>
           <div
-            className={`filter-h-item type ${type ? 'active' : ''}`}
+            className={`filter-h-item type ${type || typeText ? 'active' : ''}`}
             onClick={() => this.handleFilterClick('type')}
           >
-            出租类型
+            {this.state.typeText || '出租类型'}
           </div>
           <i className="icon-wrap">
             <Icon type="down" className={`icon-arrow ${scoped.className}`} />
           </i>
           <div
-            className={`filter-h-item ${money ? 'active' : ''}`}
+            className={`filter-h-item ${money || moneyText ? 'active' : ''}`}
             onClick={() => this.handleFilterClick('money')}
           >
-            租金
+            {this.state.moneyText || '租金'}
           </div>
           <i className="icon-wrap">
             <Icon type="down" className={`icon-arrow ${scoped.className}`} />
@@ -123,7 +189,7 @@ class Filters extends Component {
                 this.checkShow('area') ? 'show' : ''
               }`}
               data={menu1}
-              onChange={this.onChange}
+              onChange={v => this.onChange('area', v)}
               onOk={this.onOk}
               onCancel={this.onCancel}
               height={document.documentElement.clientHeight * 0.6}
@@ -136,7 +202,7 @@ class Filters extends Component {
               }`}
               data={menu2}
               level={1}
-              onChange={this.onChange}
+              onChange={v => this.onChange('type', v)}
               onOk={this.onOk}
               onCancel={this.onCancel}
               height={document.documentElement.clientHeight * 0.27}
@@ -149,7 +215,7 @@ class Filters extends Component {
               }`}
               data={menu3}
               level={1}
-              onChange={this.onChange}
+              onChange={v => this.onChange('money', v)}
               onOk={this.onOk}
               onCancel={this.onCancel}
               height={document.documentElement.clientHeight * 0.33}
@@ -162,7 +228,7 @@ class Filters extends Component {
               }`}
               data={menu4}
               level={1}
-              onChange={this.onChange}
+              onChange={v => this.onChange('sort', v)}
               onOk={this.onOk}
               onCancel={this.onCancel}
               height={document.documentElement.clientHeight * 0.27}

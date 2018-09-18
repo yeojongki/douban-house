@@ -16,45 +16,7 @@ const errorCtx = (msg = 'error', code = 0) => ({
 });
 
 /**
- * get house list
- * @param {Number} page nth of page
- * @param {Number} size size of one page
- */
-router.get('/list', async ctx => {
-  const {
-    query: { page = 1, size = 10 }
-  } = ctx;
-
-  try {
-    const list = await db.Houses.find(null, { _id: 0, __v: 0 })
-      .sort({ ltime: -1 })
-      .limit(+size)
-      .skip((page - 1) * size);
-    ctx.body = successCtx(list);
-  } catch (e) {
-    ctx.body = errorCtx(`get house list error: ${e.message || e}`);
-  }
-});
-
-/**
- * get house detail
- * @param {Number} tid topic id
- */
-router.get('/house/:tid', async ctx => {
-  const {
-    params: { tid }
-  } = ctx;
-
-  try {
-    const house = await db.Houses.findOne({ tid: tid }, { _id: 0, __v: 0 });
-    ctx.body = successCtx(house);
-  } catch (e) {
-    ctx.body = errorCtx(`get house id[${tid}] error: ${e.message || e}`);
-  }
-});
-
-/**
- * search house
+ * list&search house
  * @param {Boolean} imgs have imgs ?
  * @param {Boolean} contact have contact way ?
  * @param {String} area area like '天河','越秀'
@@ -121,11 +83,29 @@ router.get('/search', async ctx => {
   // console.log('search query', query);
   try {
     const houses = await db.Houses.find(query, { _id: 0, __v: 0 })
+      .sort({ ltime: -1 })
       .limit(+size)
       .skip((page - 1) * size);
     ctx.body = successCtx(houses);
   } catch (e) {
     ctx.body = errorCtx(`search house error: ${e.message || e}`);
+  }
+});
+
+/**
+ * get house detail
+ * @param {Number} tid topic id
+ */
+router.get('/house/:tid', async ctx => {
+  const {
+    params: { tid }
+  } = ctx;
+
+  try {
+    const house = await db.Houses.findOne({ tid: tid }, { _id: 0, __v: 0 });
+    ctx.body = successCtx(house);
+  } catch (e) {
+    ctx.body = errorCtx(`get house id[${tid}] error: ${e.message || e}`);
   }
 });
 

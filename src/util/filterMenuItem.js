@@ -1,60 +1,56 @@
 export const menu1 = [
   {
-    value: '1',
+    value: 'area',
     label: '区域',
     children: [
       {
-        label: '不限',
-        value: '1'
-      },
-      {
         label: '天河',
-        value: '2'
+        value: '天河'
       },
       {
         label: '越秀',
-        value: '3'
+        value: '越秀'
       },
       {
         label: '荔湾',
-        value: '4'
+        value: '荔湾'
       },
       {
         label: '海珠',
-        value: '5'
+        value: '海珠'
       },
       {
         label: '番禺',
-        value: '6'
+        value: '番禺'
       },
       {
         label: '白云',
-        value: '7'
+        value: '白云'
       },
       {
         label: '黄埔',
-        value: '8'
+        value: '黄埔'
       },
       {
         label: '从化',
-        value: '9'
+        value: '从化'
       },
       {
         label: '增城',
-        value: '10'
+        value: '增城'
       },
       {
         label: '花都',
-        value: '11'
+        value: '花都'
       },
       {
         label: '南沙',
-        value: '12'
+        value: '南沙'
       }
     ]
   },
   {
-    value: '2',
+    value: 'subway',
     label: '地铁',
     children: [
       {
@@ -107,7 +103,7 @@ export const menu1 = [
       },
       {
         label: '广佛线',
-        value: '广佛线'
+        value: '广佛'
       }
     ]
   }
@@ -116,42 +112,75 @@ export const menu1 = [
 export const menu2 = [
   {
     label: '一室',
-    value: '1'
+    value: '(一|1)(室|房)'
   },
   {
     label: '二室',
-    value: '2'
+    value: '(二|2)(室|房)'
   },
   {
     label: '三室',
-    value: '3'
+    value: '(三|3)(室|房)'
   },
   {
     label: '四室',
-    value: '4'
+    value: '(四|4)(室|房)'
   }
 ];
 
 export const menu3 = [
   {
     label: '1000元以下',
-    value: '1'
+    value: {
+      key: 'price_lt',
+      value: 1000
+    }
   },
   {
     label: '1000-2000元',
-    value: '2'
+    value: [
+      {
+        key: 'price_gt',
+        value: 1000
+      },
+      {
+        key: 'price_lt',
+        value: 2000
+      }
+    ]
   },
   {
     label: '2000-3000元',
-    value: '3'
+    value: [
+      {
+        key: 'price_gt',
+        value: 2000
+      },
+      {
+        key: 'price_lt',
+        value: 3000
+      }
+    ]
   },
   {
     label: '3000-4000元',
-    value: '4'
+    value: [
+      {
+        key: 'price_gt',
+        value: 3000
+      },
+      {
+        key: 'price_lt',
+        value: 4000
+      }
+    ]
   },
   {
     label: '5000元以上',
-    value: '5'
+    value: {
+      key: 'price_gt',
+      value: 5000
+    }
   }
 ];
 

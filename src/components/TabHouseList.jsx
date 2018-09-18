@@ -20,14 +20,15 @@ class TabHouseList extends Component {
       hasMore: true,
       footerText: 'Loading...',
       page: 1,
-      showBackTop: false
+      showBackTop: false,
+      query: null
     };
   }
 
   componentDidMount() {
     // init ajax
-    let { page } = this.state;
-    this.handleGetList(page).then(list => {
+    let { page, query } = this.state;
+    this.handleGetList(query, page).then(list => {
       this.rData = list;
       this.setState({
         dataSource: this.state.dataSource.cloneWithRows(list),
@@ -35,6 +36,7 @@ class TabHouseList extends Component {
       });
     });
 
+    // set list view height
     setTimeout(() => {
       const $ = el => document.querySelector(el);
       let top_h = $('.filter').getBoundingClientRect().bottom;
@@ -46,11 +48,11 @@ class TabHouseList extends Component {
   }
 
   // handle get house list
-  async handleGetList(page, size = 20) {
+  async handleGetList(query, page, size = 20) {
     this.setState({ isLoading: true });
     let dataArr;
     try {
-      dataArr = await GetList(page, size);
+      dataArr = await GetList(query, page, size);
     } catch (error) {
       console.error(error);
     }
@@ -65,13 +67,20 @@ class TabHouseList extends Component {
       isLoading: true,
       footerText: 'Loading...'
     });
-    this.handleGetList(this.state.page).then(list => {
+    this.handleGetList(this.state.query, this.state.page).then(list => {
       if (list.length) {
         this.setState({
           dataSource: this.state.dataSource.cloneWithRows(list),
           isLoading: false,
           refreshing: false,
           hasMore: true
+        });
+      } else {
+        // no data
+        this.setState({
+          isLoading: false,
+          refreshing: false,
+          hasMore: false
         });
       }
     });
@@ -84,7 +93,7 @@ class TabHouseList extends Component {
     }
     this.setState(prev => ({ page: prev.page + 1, isLoading: true }));
     // ajax
-    this.handleGetList(this.state.page).then(list => {
+    this.handleGetList(this.state.query, this.state.page).then(list => {
       if (list.length) {
         this.rData = [...this.rData, ...list];
         this.setState({
@@ -127,6 +136,89 @@ class TabHouseList extends Component {
     ReactDOM.findDOMNode(this.lv).style.overflow = 'auto';
   };
 
+  // filter menus change event
+  handleFilterChange = (type, v) => {
+    // reset page to 1
+    this.setState({ page: 1 });
+    // set listview style `overflow:auto`
+    this.handleFilterClose();
+    let query;
+    switch (type) {
+      case 'area':
+        query = { key: 'area', value: v[1] };
+        this.setState(
+          {
+            query: this.state.query ? [...this.state.query, query] : [query]
+          },
+          () => {
+            GetList(this.state.query, this.state.page).then(list => {
+              this.setState({
+                dataSource: this.state.dataSource.cloneWithRows(list)
+              });
+            });
+          }
+        );
+        break;
+      case 'type':
+        query = { key: 'model', value: v[0] };
+        this.setState(
+          { query: this.state.query ? [...this.state.query, query] : [query] },
+          () => {
+            console.log(`change model`);
+            console.log(this.state.query);
+            console.log(`*****************************`);
+            GetList(this.state.query, this.state.page).then(list => {
+              this.setState({
+                dataSource: this.state.dataSource.cloneWithRows(list)
+              });
+            });
+          }
+        );
+        break;
+      case 'money':
+        if (Array.isArray(v[0])) {
+          query = v[0];
+        } else {
+          query = v;
+        }
+        console.log('----------------------');
+        console.log(query);
+        console.log('----------------------');
+        // delete current state have `price_gt`, `price_lt`
+        let curQuery = this.state.query ? this.state.query.slice() : [];
+        let newQuery = [];
+        // if this.state.query.length
+        if (curQuery.length) {
+          curQuery.forEach(q => {
+            if (q.key !== 'price_gt' || q.key !== 'price_lt') {
+              console.log(q)
+              newQuery.push(q);
+            }
+          });
+        }
+        console.log(newQuery);
+        this.setState(
+          {
+            query: this.state.query ? [...newQuery, ...query] : query
+          },
+          () => {
+            console.log(`change money`);
+            console.log(this.state.query);
+            console.log(`*****************************`);
+            GetList(this.state.query, this.state.page).then(list => {
+              this.setState({
+                dataSource: this.state.dataSource.cloneWithRows(list)
+              });
+            });
+          }
+        );
+        break;
+
+      default:
+        break;
+    }
+  };
+
   render() {
     const row = rowData => {
       return <HouseItem house={rowData} />;
@@ -146,7 +238,11 @@ class TabHouseList extends Component {
             <span>请输入地铁、户型、价格等</span>
           </div>
         </header>
-        <Filters open={this.handleFilterOpen} close={this.handleFilterClose} />
+        <Filters
+          open={this.handleFilterOpen}
+          close={this.handleFilterClose}
+          change={this.handleFilterChange}
+        />
         <ListView
           style={{
             height: this.state.height

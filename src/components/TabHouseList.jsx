@@ -59,6 +59,15 @@ class TabHouseList extends Component {
     return dataArr || [];
   }
 
+  // get list & set datasource
+  setDataSource() {
+    GetList(this.state.query, this.state.page).then(list => {
+      this.setState({
+        dataSource: this.state.dataSource.cloneWithRows(list)
+      });
+    });
+  }
+
   // refresh event
   onRefresh = () => {
     this.setState({
@@ -136,43 +145,66 @@ class TabHouseList extends Component {
     ReactDOM.findDOMNode(this.lv).style.overflow = 'auto';
   };
 
+  // build new filter query
+  buildNewQuery(key) {
+    let curQuery = this.state.query ? this.state.query.slice() : [];
+    let newQuery = [];
+    // if state.query exist key
+    let hasKey;
+    // judge typeof key
+    let isArray = Array.isArray(key);
+    let isString = typeof key === 'string';
+    // if query.length
+    if (curQuery.length) {
+      // if is array
+      if (isArray) {
+        key.forEach(item => {
+          curQuery.forEach(q => {
+            if (q.key !== item) {
+              newQuery.push(q);
+            }
+          });
+        });
+      } else if (isString) {
+        curQuery.forEach(q => {
+          if (q.key !== key) {
+            newQuery.push(q);
+          }
+        });
+      } else {
+        throw new Error('unknow key type in function `buildNewQuery`');
+      }
+    }
+    return newQuery;
+  }
+
   // filter menus change event
   handleFilterChange = (type, v) => {
     // reset page to 1
     this.setState({ page: 1 });
     // set listview style `overflow:auto`
     this.handleFilterClose();
-    let query;
+    let query, newQuery;
     switch (type) {
       case 'area':
-        query = { key: 'area', value: v[1] };
+        if (v[1]) {
+          query = [{ key: 'area', value: v[1] }];
+        } else {
+          query = [{ key: 'area', value: '' }];
+        }
+        newQuery = this.buildNewQuery('area');
         this.setState(
           {
-            query: this.state.query ? [...this.state.query, query] : [query]
+            query: this.state.query ? [...newQuery, ...query] : query
           },
-          () => {
-            GetList(this.state.query, this.state.page).then(list => {
-              this.setState({
-                dataSource: this.state.dataSource.cloneWithRows(list)
-              });
-            });
-          }
+          () => this.setDataSource()
         );
         break;
       case 'type':
         query = { key: 'model', value: v[0] };
         this.setState(
           { query: this.state.query ? [...this.state.query, query] : [query] },
-          () => {
-            console.log(`change model`);
-            console.log(this.state.query);
-            console.log(`*****************************`);
-            GetList(this.state.query, this.state.page).then(list => {
-              this.setState({
-                dataSource: this.state.dataSource.cloneWithRows(list)
-              });
-            });
-          }
+          () => this.setDataSource()
         );
         break;
       case 'money':
@@ -181,36 +213,12 @@ class TabHouseList extends Component {
         } else {
           query = v;
         }
-        console.log('----------------------');
-        console.log(query);
-        console.log('----------------------');
-        // delete current state have `price_gt`, `price_lt`
-        let curQuery = this.state.query ? this.state.query.slice() : [];
-        let newQuery = [];
-        // if this.state.query.length
-        if (curQuery.length) {
-          curQuery.forEach(q => {
-            if (q.key !== 'price_gt' || q.key !== 'price_lt') {
-              console.log(q)
-              newQuery.push(q);
-            }
-          });
-        }
-        console.log(newQuery);
+        newQuery = this.buildNewQuery(['price_gt', 'price_lt']);
         this.setState(
           {
             query: this.state.query ? [...newQuery, ...query] : query
           },
-          () => {
-            console.log(`change money`);
-            console.log(this.state.query);
-            console.log(`*****************************`);
-            GetList(this.state.query, this.state.page).then(list => {
-              this.setState({
-                dataSource: this.state.dataSource.cloneWithRows(list)
-              });
-            });
-          }
+          () => this.setDataSource()
         );
         break;
 

@@ -4,6 +4,10 @@ export const menu1 = [
     label: '区域',
     children: [
       {
+        label: '不限',
+        value: 0
+      },
+      {
         label: '天河',
         value: '天河'
       },
@@ -53,6 +57,10 @@ export const menu1 = [
     value: 'subway',
     label: '地铁',
     children: [
+      {
+        label: '不限',
+        value: 0
+      },
       {
         label: '1号线',
         value: '1'
@@ -111,6 +119,10 @@ export const menu1 = [
 
 export const menu2 = [
   {
+    label: '不限',
+    value: 0
+  },
+  {
     label: '一室',
     value: '(一|1)(室|房)'
   },
@@ -129,6 +141,10 @@ export const menu2 = [
 ];
 
 export const menu3 = [
+  {
+    label: '不限',
+    value: 0
+  },
   {
     label: '1000元以下',
     value: {
@@ -185,6 +201,10 @@ export const menu3 = [
 ];
 
 export const menu4 = [
+  {
+    label: '默认排序',
+    value: 0
+  },
   {
     label: '有图片',
     value: '1'

@@ -80,7 +80,7 @@ router.get('/search', async ctx => {
   if (model) {
     query.model = { $regex: model };
   }
-  // console.log('search query', query);
+  console.log('search query', query);
   try {
     const houses = await db.Houses.find(query, { _id: 0, __v: 0 })
       .sort({ ltime: -1 })

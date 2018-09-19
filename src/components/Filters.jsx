@@ -44,6 +44,7 @@ class Filters extends Component {
     });
   }
 
+  // select menu change event
   onChange = (type, v) => {
     let label;
     switch (type) {
@@ -67,7 +68,9 @@ class Filters extends Component {
             });
           }
         });
-        this.setState({ areaText: label });
+        label === '不限'
+          ? this.setState({ areaText: '区域' })
+          : this.setState({ areaText: label });
         break;
       case 'type':
         menu2.forEach(item => {
@@ -77,7 +80,9 @@ class Filters extends Component {
             return;
           }
         });
-        this.setState({ typeText: label });
+        label === '不限'
+          ? this.setState({ typeText: '出租类型' })
+          : this.setState({ typeText: label });
         break;
       case 'money':
         menu3.forEach(item => {
@@ -87,7 +92,9 @@ class Filters extends Component {
             return;
           }
         });
-        this.setState({ moneyText: label });
+        label === '不限'
+          ? this.setState({ moneyText: '出租类型' })
+          : this.setState({ moneyText: label });
         break;
 
       default:

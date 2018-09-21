@@ -140,7 +140,12 @@ class HouseDetail extends Component {
               <Icon type="ellipsis" className={`center ${scoped.className}`} />
               <p
                 onClick={() =>
-                  Toast.info((house.contact && house.contact.wechat) || '暂无')
+                  Toast.info(
+                    (house.contact &&
+                      house.contact.type === 'wechat' &&
+                      house.contact.value) ||
+                      '暂无'
+                  )
                 }
               >
                 微信
@@ -153,11 +158,7 @@ class HouseDetail extends Component {
                 house.contact.type &&
                 (house.contact.type === 'phone' ||
                   house.contact.type === 'mobile') ? (
-                  <a
-                    href={`tel:${house.contact.phone || house.contact.mobile}`}
-                  >
-                    电话
-                  </a>
+                  <a href={`tel:${house.contact.value}`}>电话</a>
                 ) : (
                   <span onClick={() => Toast.info('暂无')}>电话</span>
                 )}

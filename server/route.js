@@ -16,7 +16,10 @@ const errorCtx = (msg = 'error', code = 0) => ({
 });
 
 /**
- * list&search house
+ * @description get/search house list
+ * @param {Number} page page number
+ * @param {Number} size the size length of every page
+ * @param {Object} filter search query
  * @param {Boolean} imgs have imgs ?
  * @param {Boolean} contact have contact way ?
  * @param {String} area area like '天河','越秀'
@@ -27,63 +30,75 @@ const errorCtx = (msg = 'error', code = 0) => ({
  * @param {Number} price_gt gt house price
  * @param {Number} price_lt lt house price
  */
-router.get('/search', async ctx => {
-  let { query } = ctx;
-  const {
-    query: {
-      page = 1,
-      size = 10,
-      imgs,
-      contact,
-      size_gt,
-      size_lt,
-      price_gt,
-      price_lt,
-      model
+router.post('/list', async ctx => {
+  let body = ctx.request.body,
+    sort = { ctime: -1 },
+    query = {};
+  const { page = 1, size = 10 } = body;
+  // if filter
+  if (body.filter) {
+    Object.values(body.filter).forEach(item => {
+      query[item.key] = item.value;
+    });
+    // if object has own key
+    const h = (key, o = query) => o.hasOwnProperty(key);
+    // other keys need formatted
+    if (h('price_gt') && !h('price_lt')) {
+      query.price = { $gt: +query.price_gt };
+      delete query.price_gt;
     }
-  } = ctx;
-  delete query.page;
-  delete query.size;
-  if (imgs) {
-    delete query.imgs;
-    query['imgs.0'] = { $exists: 1 };
+    if (h('price_lt') && !h('price_gt')) {
+      query.price = { $lt: +query.price_lt };
+      delete query.price_lt;
+    }
+    if (h('price_gt') && h('price_lt')) {
+      query.price = { $lt: +query.price_lt, $gt: +query.price_gt };
+      delete query.price_gt;
+      delete query.price_lt;
+    }
+    if (h('size_gt') && !h('size_lt')) {
+      query.size = { $gt: +query.size_gt };
+      delete query.size_gt;
+    }
+    if (h('size_lt') && !h('size_gt')) {
+      query.size = { $lt: +query.size_lt };
+      delete query.size_lt;
+    }
+    if (h('size_gt') && h('size_lt')) {
+      query.size = { $lt: +query.size_lt, $gt: +query.size_gt };
+      delete query.size_gt;
+      delete query.size_lt;
+    }
+    if (h('model')) {
+      query.model
+        ? (query.model = { $regex: query.model })
+        : delete query.model;
+    }
+    // sort
+    if (h('sort')) {
+      if (query.sort) {
+        let key = query.sort;
+        if (key === 'imgs') {
+          query['imgs.0'] = { $exists: 1 };
+        } else if (key === 'ctime') {
+          sort = { ctime: -1 };
+        } else if (key === 'contact') {
+          query.contact = { $ne: null };
+        } else if (key === 'price_desc') {
+          sort = { price: 1 };
+          query.price = { $ne: null };
+        } else if (key === 'price_asc') {
+          sort = { price: -1 };
+          query.price = { $ne: null };
+        }
+      }
+      delete query.sort;
+    }
   }
-  if (contact) {
-    query.contact = { $ne: null };
-  }
-  if (price_gt && !price_lt) {
-    delete query.price_gt;
-    query.price = { $gt: +price_gt };
-  }
-  if (price_lt && !price_gt) {
-    delete query.price_lt;
-    query.price = { $lt: +price_lt };
-  }
-  if (price_gt && price_lt) {
-    delete query.price_gt;
-    delete query.price_lt;
-    query.price = { $lt: +price_lt, $gt: +price_gt };
-  }
-  if (size_gt && !size_lt) {
-    delete query.size_gt;
-    query.size = { $gt: +size_gt };
-  }
-  if (size_lt && !size_gt) {
-    delete query.size_lt;
-    query.size = { $lt: +size_lt };
-  }
-  if (size_gt && size_lt) {
-    delete query.size_gt;
-    delete query.size_lt;
-    query.size = { $lt: +size_lt, $gt: +size_gt };
-  }
-  if (model) {
-    query.model = { $regex: model };
-  }
-  console.log('search query', query);
+  // console.log(`search query`, query, sort);
   try {
     const houses = await db.Houses.find(query, { _id: 0, __v: 0 })
-      .sort({ ltime: -1 })
+      .sort(sort)
       .limit(+size)
       .skip((page - 1) * size);
     ctx.body = successCtx(houses);

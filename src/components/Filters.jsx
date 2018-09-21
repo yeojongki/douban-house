@@ -93,7 +93,7 @@ class Filters extends Component {
           }
         });
         label === '不限'
-          ? this.setState({ moneyText: '出租类型' })
+          ? this.setState({ moneyText: '租金' })
           : this.setState({ moneyText: label });
         break;
 

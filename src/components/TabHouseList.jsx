@@ -20,6 +20,7 @@ class TabHouseList extends Component {
       hasMore: true,
       footerText: 'Loading...',
       page: 1,
+      size: 20,
       showBackTop: false,
       query: null
     };
@@ -27,8 +28,8 @@ class TabHouseList extends Component {
 
   componentDidMount() {
     // init ajax
-    let { page, query } = this.state;
-    this.handleGetList(query, page).then(list => {
+    let { page, size, query } = this.state;
+    this.handleGetList(page, size, query).then(list => {
       this.rData = list;
       this.setState({
         dataSource: this.state.dataSource.cloneWithRows(list),
@@ -48,24 +49,19 @@ class TabHouseList extends Component {
   }
 
   // handle get house list
-  async handleGetList(query, page, size = 20) {
+  async handleGetList(page, size = 20, query) {
     this.setState({ isLoading: true });
+    let queryArr = [];
     let dataArr;
+    for (let i in query) {
+      queryArr.push({ key: i, value: query[i] });
+    }
     try {
-      dataArr = await GetList(query, page, size);
+      dataArr = await GetList(page, size, queryArr);
     } catch (error) {
       console.error(error);
     }
     return dataArr || [];
-  }
-
-  // get list & set datasource
-  setDataSource() {
-    GetList(this.state.query, this.state.page).then(list => {
-      this.setState({
-        dataSource: this.state.dataSource.cloneWithRows(list)
-      });
-    });
   }
 
   // refresh event
@@ -76,7 +72,8 @@ class TabHouseList extends Component {
       isLoading: true,
       footerText: 'Loading...'
     });
-    this.handleGetList(this.state.query, this.state.page).then(list => {
+    let { page, size, query } = this.state;
+    this.handleGetList(page, size, query).then(list => {
       if (list.length) {
         this.setState({
           dataSource: this.state.dataSource.cloneWithRows(list),
@@ -102,7 +99,8 @@ class TabHouseList extends Component {
     }
     this.setState(prev => ({ page: prev.page + 1, isLoading: true }));
     // ajax
-    this.handleGetList(this.state.query, this.state.page).then(list => {
+    let { page, size, query } = this.state;
+    this.handleGetList(page, size, query).then(list => {
       if (list.length) {
         this.rData = [...this.rData, ...list];
         this.setState({
@@ -145,37 +143,55 @@ class TabHouseList extends Component {
     ReactDOM.findDOMNode(this.lv).style.overflow = 'auto';
   };
 
+  // get list & set datasource
+  setDataSource() {
+    let { page, size, query } = this.state;
+    let queryArr = [];
+    for (let i in query) {
+      queryArr.push({ key: i, value: query[i] });
+    }
+    GetList(page, size, queryArr).then(list => {
+      this.rData = list;
+      this.setState({
+        dataSource: this.state.dataSource.cloneWithRows(list)
+      });
+    });
+  }
+
   // build new filter query
-  buildNewQuery(key) {
-    let curQuery = this.state.query ? this.state.query.slice() : [];
-    let newQuery = [];
-    // if state.query exist key
-    let hasKey;
-    // judge typeof key
-    let isArray = Array.isArray(key);
-    let isString = typeof key === 'string';
-    // if query.length
-    if (curQuery.length) {
-      // if is array
-      if (isArray) {
-        key.forEach(item => {
-          curQuery.forEach(q => {
-            if (q.key !== item) {
-              newQuery.push(q);
-            }
-          });
+  buildNewQuery(key, exclude, delKey, value, customQuery, q) {
+    let curQuery = Object.assign({}, this.state.query);
+    let query;
+    // if need exclude
+    if (exclude) {
+      const handleDelKey = k => {
+        if (curQuery.hasOwnProperty(k)) {
+          delete curQuery[k];
+        }
+      };
+      // String `delkey`
+      if (typeof delKey === 'string') {
+        handleDelKey(delKey);
+      } else if (Array.isArray(delKey)) {
+        // Array `delkey`
+        delKey.forEach(k => {
+          handleDelKey(k);
         });
-      } else if (isString) {
-        curQuery.forEach(q => {
-          if (q.key !== key) {
-            newQuery.push(q);
-          }
-        });
-      } else {
-        throw new Error('unknow key type in function `buildNewQuery`');
       }
     }
-    return newQuery;
+    // if need custom query
+    if (customQuery) {
+      query = q;
+    } else {
+      query = { [key]: value ? value : null };
+    }
+    // setState
+    this.setState(
+      {
+        query: { ...curQuery, ...query }
+      },
+      () => this.setDataSource()
+    );
   }
 
   // filter menus change event
@@ -184,42 +200,29 @@ class TabHouseList extends Component {
     this.setState({ page: 1 });
     // set listview style `overflow:auto`
     this.handleFilterClose();
-    let query, newQuery;
+    // let query, newQuery;
     switch (type) {
       case 'area':
-        if (v[1]) {
-          query = [{ key: 'area', value: v[1] }];
+        // area or subway
+        if (v[0] === 'area') {
+          this.buildNewQuery('area', true, 'subway', v[1]);
         } else {
-          query = [{ key: 'area', value: '' }];
+          // subway
+          this.buildNewQuery('subway', true, 'area', v[1]);
         }
-        newQuery = this.buildNewQuery('area');
-        this.setState(
-          {
-            query: this.state.query ? [...newQuery, ...query] : query
-          },
-          () => this.setDataSource()
-        );
         break;
       case 'type':
-        query = { key: 'model', value: v[0] };
-        this.setState(
-          { query: this.state.query ? [...this.state.query, query] : [query] },
-          () => this.setDataSource()
-        );
+        this.buildNewQuery('model', false, '', v[0]);
         break;
       case 'money':
-        if (Array.isArray(v[0])) {
-          query = v[0];
-        } else {
-          query = v;
-        }
-        newQuery = this.buildNewQuery(['price_gt', 'price_lt']);
-        this.setState(
-          {
-            query: this.state.query ? [...newQuery, ...query] : query
-          },
-          () => this.setDataSource()
-        );
+        let oj = {};
+        v[0].forEach(item => {
+          oj[item.key] = item.value;
+        });
+        this.buildNewQuery('', true, ['price_gt', 'price_lt'], '', true, oj);
+        break;
+      case 'sort':
+        this.buildNewQuery('sort', false, '', v[0]);
         break;
 
       default:

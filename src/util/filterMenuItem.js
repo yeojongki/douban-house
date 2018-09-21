@@ -143,14 +143,21 @@ export const menu2 = [
 export const menu3 = [
   {
     label: '不限',
-    value: 0
+    value: [
+      {
+        key: 'price_gt',
+        value: 0
+      }
+    ]
   },
   {
     label: '1000元以下',
-    value: {
-      key: 'price_lt',
-      value: 1000
-    }
+    value: [
+      {
+        key: 'price_lt',
+        value: 1000
+      }
+    ]
   },
   {
     label: '1000-2000元',
@@ -193,32 +200,38 @@ export const menu3 = [
   },
   {
     label: '5000元以上',
-    value: {
-      key: 'price_gt',
-      value: 5000
-    }
+    value: [
+      {
+        key: 'price_gt',
+        value: 5000
+      }
+    ]
   }
 ];
 
 export const menu4 = [
   {
     label: '默认排序',
-    value: 0
+    value: null
   },
   {
     label: '有图片',
-    value: '1'
+    value: 'imgs'
   },
   {
     label: '最近发布',
-    value: '2'
+    value: 'ctime'
+  },
+  {
+    label: '有联系方式',
+    value: 'contact'
   },
   {
     label: '租金由低到高',
-    value: '3'
+    value: 'price_desc'
   },
   {
     label: '租金由高到低',
-    value: '4'
+    value: 'price_asc'
   }
 ];

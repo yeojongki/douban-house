@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
-import Tabs from '@/views/tabs';
-import HouseDetail from '@/views/houseDetail';
-import HouseSearch from '@/views/houseSearch';
+import Tabs from '@/views/Tabs';
+import HouseDetail from '@/views/HouseDetail';
+import HouseSearch from '@/views/HouseSearch';
 
 export default () => (
   <Router>

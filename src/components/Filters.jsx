@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Menu, Icon } from 'antd-mobile';
 import { resolveScopedStyles } from '@/util';
 import { menu1, menu2, menu3, menu4 } from '@/util/filterMenuItem';
+import SvgIcon from 'comp/SvgIcon';
 
 class Filters extends Component {
   constructor(props) {
@@ -129,6 +130,7 @@ class Filters extends Component {
     const scoped = resolveScopedStyles(
       <scope>
         <style jsx>{`
+          @import '../styles/variables.scss';
           .mymenu {
             visibility: hidden;
             position: absolute;
@@ -138,10 +140,19 @@ class Filters extends Component {
               position: static;
             }
           }
+          .filter-h-item.active {
+            .icon-arrow {
+            }
+          }
           .icon-arrow {
             vertical-align: middle;
             width: 24px;
             height: 24px;
+            transition: transform 0.3s;
+            transform-origin: center center;
+            &.active {
+              transform: rotate(180deg);
+            }
           }
         `}</style>
       </scope>
@@ -160,33 +171,42 @@ class Filters extends Component {
             onClick={() => this.handleFilterClick('area')}
           >
             {this.state.areaText || '区域'}
+            <Icon
+              type="down"
+              className={`icon-arrow  ${area ? 'active' : ''} ${
+                scoped.className
+              }`}
+            />
           </div>
-          <i className="icon-wrap">
-            <Icon type="down" className={`icon-arrow ${scoped.className}`} />
-          </i>
           <div
             className={`filter-h-item type ${type || typeText ? 'active' : ''}`}
             onClick={() => this.handleFilterClick('type')}
           >
             {this.state.typeText || '出租类型'}
+            <Icon
+              type="down"
+              className={`icon-arrow ${type ? 'active' : ''} ${
+                scoped.className
+              }`}
+            />
           </div>
-          <i className="icon-wrap">
-            <Icon type="down" className={`icon-arrow ${scoped.className}`} />
-          </i>
           <div
             className={`filter-h-item ${money || moneyText ? 'active' : ''}`}
             onClick={() => this.handleFilterClick('money')}
           >
             {this.state.moneyText || '租金'}
+            <Icon
+              type="down"
+              className={`icon-arrow ${money ? 'active' : ''} ${
+                scoped.className
+              }`}
+            />
           </div>
-          <i className="icon-wrap">
-            <Icon type="down" className={`icon-arrow ${scoped.className}`} />
-          </i>
           <div
             className={`filter-h-item sort ${sort ? 'active' : ''}`}
             onClick={() => this.handleFilterClick('sort')}
           >
-            icon
+            <SvgIcon name="paixu" width="14" height="14" />
           </div>
         </div>
         <div className="filter-b">
@@ -199,7 +219,7 @@ class Filters extends Component {
               onChange={v => this.onChange('area', v)}
               onOk={this.onOk}
               onCancel={this.onCancel}
-              height={document.documentElement.clientHeight * 0.6}
+              height={document.documentElement.clientHeight * 0.55}
             />
           </div>
           <div className="filter-b-item">
@@ -212,7 +232,7 @@ class Filters extends Component {
               onChange={v => this.onChange('type', v)}
               onOk={this.onOk}
               onCancel={this.onCancel}
-              height={document.documentElement.clientHeight * 0.27}
+              height="auto"
             />
           </div>
           <div className="filter-b-item">
@@ -225,10 +245,10 @@ class Filters extends Component {
               onChange={v => this.onChange('money', v)}
               onOk={this.onOk}
               onCancel={this.onCancel}
-              height={document.documentElement.clientHeight * 0.33}
+              height="auto"
             />
           </div>
-          <div className="filter-b-item">
+          <div className="filter-b-item sort">
             <Menu
               className={`mymenu ${scoped.className} ${
                 this.checkShow('sort') ? 'show' : ''
@@ -238,7 +258,7 @@ class Filters extends Component {
               onChange={v => this.onChange('sort', v)}
               onOk={this.onOk}
               onCancel={this.onCancel}
-              height={document.documentElement.clientHeight * 0.27}
+              height="auto"
             />
           </div>
         </div>
@@ -254,24 +274,13 @@ class Filters extends Component {
               background: #fff;
               &-item {
                 position: relative;
-                flex: 1;
+                flex: 2;
                 text-align: center;
-                & + .icon-wrap {
-                  margin-left: -80px;
-                  transition: transform 0.3s;
-                }
-                &.type {
-                  & + .icon-wrap {
-                    margin-left: -50px;
-                  }
+                &.sort {
+                  flex: 1;
                 }
                 &.active {
                   color: $main-color;
-                  & + .icon-wrap {
-                    transform: rotate(180deg);
-                    transform-origin: center center;
-                    color: $main-color;
-                  }
                 }
               }
             }

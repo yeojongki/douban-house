@@ -1,10 +1,13 @@
 import React, { Fragment, Component } from 'react';
 import ReactDOM from 'react-dom';
-import { Icon, PullToRefresh, ListView } from 'antd-mobile';
+import { PullToRefresh, ListView, ActivityIndicator } from 'antd-mobile';
 import Filters from 'comp/Filters';
 import BackTop from 'comp/BackTop';
 import HouseItem from './HouseItem';
+import Header from 'comp/Header';
 import { GetList } from '@/api';
+
+const NoMoreText = '没有更多了哦~';
 
 class TabHouseList extends Component {
   constructor(props) {
@@ -18,7 +21,6 @@ class TabHouseList extends Component {
       isLoading: false,
       height: null,
       hasMore: true,
-      footerText: 'Loading...',
       page: 1,
       size: 20,
       showBackTop: false,
@@ -31,6 +33,11 @@ class TabHouseList extends Component {
     let { page, size, query } = this.state;
     this.handleGetList(page, size, query).then(list => {
       this.rData = list;
+      if (list.length < size) {
+        this.setState({
+          hasMore: false
+        });
+      }
       this.setState({
         dataSource: this.state.dataSource.cloneWithRows(list),
         isLoading: false
@@ -69,26 +76,31 @@ class TabHouseList extends Component {
     this.setState({
       page: 1,
       refreshing: true,
-      isLoading: true,
-      footerText: 'Loading...'
+      isLoading: true
     });
     let { page, size, query } = this.state;
     this.handleGetList(page, size, query).then(list => {
-      if (list.length) {
+      if (list.length && list.length === size) {
         this.setState({
           dataSource: this.state.dataSource.cloneWithRows(list),
-          isLoading: false,
-          refreshing: false,
           hasMore: true
+        });
+      } else if (list.length && list.length < size) {
+        this.setState({
+          dataSource: this.state.dataSource.cloneWithRows(list),
+          hasMore: false
         });
       } else {
         // no data
         this.setState({
-          isLoading: false,
-          refreshing: false,
           hasMore: false
         });
       }
+      // common setState
+      this.setState({
+        isLoading: false,
+        refreshing: false
+      });
     });
   };
 
@@ -101,18 +113,22 @@ class TabHouseList extends Component {
     // ajax
     let { page, size, query } = this.state;
     this.handleGetList(page, size, query).then(list => {
-      if (list.length) {
+      if (list.length && list.length === size) {
         this.rData = [...this.rData, ...list];
         this.setState({
           dataSource: this.state.dataSource.cloneWithRows(this.rData),
           isLoading: false
         });
+      } else if (list.length && list.length < size) {
+        this.setState({
+          dataSource: this.state.dataSource.cloneWithRows(this.rData),
+          hasMore: false
+        });
       } else {
         // no more
         this.setState({
           hasMore: false,
-          isLoading: false,
-          footerText: '没有更多了哦~'
+          isLoading: false
         });
       }
     });
@@ -152,6 +168,11 @@ class TabHouseList extends Component {
     }
     GetList(page, size, queryArr).then(list => {
       this.rData = list;
+      if (list.length < size) {
+        this.setState({
+          hasMore: false
+        });
+      }
       this.setState({
         dataSource: this.state.dataSource.cloneWithRows(list)
       });
@@ -236,19 +257,7 @@ class TabHouseList extends Component {
     };
     return (
       <Fragment>
-        <header className="flexbox">
-          <div className="h__location flexbox ac jc">
-            <Icon type="ellipsis" className="h__location__icon" />
-            <span>广州</span>
-          </div>
-          <div
-            className="h__search flexbox ac jc"
-            onClick={this.props.navToSearch}
-          >
-            <Icon type="search" />
-            <span>请输入地铁、户型、价格等</span>
-          </div>
-        </header>
+        <Header searchClick={this.props.searchClick} />
         <Filters
           open={this.handleFilterOpen}
           close={this.handleFilterClose}
@@ -260,11 +269,15 @@ class TabHouseList extends Component {
           }}
           ref={el => (this.lv = el)}
           dataSource={this.state.dataSource}
-          renderFooter={() => (
-            <div style={{ padding: 10, textAlign: 'center' }}>
-              {this.state.footerText}
-            </div>
-          )}
+          renderFooter={() => {
+            return this.state.hasMore ? (
+              <div className="flexbox jc">
+                <ActivityIndicator text="正在加载" />
+              </div>
+            ) : (
+              <div className="flexbox jc">{NoMoreText}</div>
+            );
+          }}
           renderRow={row}
           pullToRefresh={
             <PullToRefresh
@@ -276,32 +289,11 @@ class TabHouseList extends Component {
             this.handleShowBackTop(e);
           }}
           scrollEventThrottle={500}
-          scrollRenderAheadDistance={500}
+          scrollRenderAheadDistance={1000}
           onEndReached={this.onEndReached}
-          pageSize={5}
+          pageSize={10}
         />
         <BackTop show={this.state.showBackTop} toTop={this.handleBackTop} />
-        <style jsx>{`
-          @import '../styles/variables.scss';
-          header {
-            height: 75px;
-            padding-top: 15px;
-            background: #fff;
-          }
-          .h {
-            &__location {
-              flex: 1;
-            }
-            &__search {
-              flex: 5;
-              color: $placeholder;
-              background: $gray-bg;
-              padding: 10px;
-              margin-right: 15px;
-              border-radius: 10px;
-            }
-          }
-        `}</style>
       </Fragment>
     );
   }

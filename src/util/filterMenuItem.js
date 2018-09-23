@@ -128,7 +128,7 @@ export const menu2 = [
   },
   {
     label: '二室',
-    value: '(二|2)(室|房)'
+    value: '(二|2|两)(室|房)'
   },
   {
     label: '三室',

@@ -28,7 +28,9 @@ export default props => {
         </div>
         <div className="house-info flexbox">
           <h3 className="house-info-title">{house.title}</h3>
-          <p className="house-info-price">{`价格：${house.price || '暂无'}`}</p>
+          <p className="house-info-price">{`价格：${
+            house.price ? house.price + '元' : '暂无'
+          }`}</p>
         </div>
         <style jsx>{`
           @import '../styles/index.scss';

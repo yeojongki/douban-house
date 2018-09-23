@@ -1,3 +1,4 @@
+// style-jsx method
 export function resolveScopedStyles(scope) {
   return {
     className: scope.props.className, // 就是被styled-jsx添加的独特className

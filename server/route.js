@@ -35,8 +35,9 @@ router.post('/list', async ctx => {
     sort = { ctime: -1 },
     query = {};
   const { page = 1, size = 10 } = body;
+
   // if filter
-  if (body.filter) {
+  if (body.filter.length) {
     Object.values(body.filter).forEach(item => {
       query[item.key] = item.value;
     });
@@ -70,9 +71,12 @@ router.post('/list', async ctx => {
       delete query.size_lt;
     }
     if (h('model')) {
-      query.model
-        ? (query.model = { $regex: query.model })
-        : delete query.model;
+      // RegExp
+      if (Object.prototype.toString.call(query.model) === '[object RegExp]') {
+        query.model = { $regex: query.model };
+      } else if (!query.model) {
+        delete query.model;
+      }
     }
     // sort
     if (h('sort')) {
@@ -94,8 +98,12 @@ router.post('/list', async ctx => {
       }
       delete query.sort;
     }
+    // title
+    if (h('title')) {
+      query.title = { $regex: query.title };
+    }
   }
-  // console.log(`search query`, query, sort);
+
   try {
     const houses = await db.Houses.find(query, { _id: 0, __v: 0 })
       .sort(sort)

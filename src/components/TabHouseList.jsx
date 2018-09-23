@@ -15,6 +15,11 @@ class TabHouseList extends Component {
     const dataSource = new ListView.DataSource({
       rowHasChanged: (row1, row2) => row1 !== row2
     });
+    // get searchQuery from sessionStorage
+    let searchQuery = window.sessionStorage.getItem('search_query');
+    if (searchQuery) {
+      searchQuery = JSON.parse(searchQuery);
+    }
     this.state = {
       dataSource: dataSource.cloneWithRows([]),
       refreshing: false,
@@ -24,7 +29,7 @@ class TabHouseList extends Component {
       page: 1,
       size: 20,
       showBackTop: false,
-      query: null
+      query: searchQuery
     };
   }
 

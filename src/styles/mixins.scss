@@ -23,7 +23,7 @@
 }
 
 // text ellipsis
-@mixin ellipsis($line) {
+@mixin ellipsis($line: 1) {
   @if ($line == 1) {
     white-space: nowrap;
     overflow: hidden;

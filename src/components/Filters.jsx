@@ -97,6 +97,9 @@ class Filters extends Component {
           ? this.setState({ moneyText: '租金' })
           : this.setState({ moneyText: label });
         break;
+      case 'sort':
+        this.sortText = 'select';
+        break;
 
       default:
         break;
@@ -206,7 +209,12 @@ class Filters extends Component {
             className={`filter-h-item sort ${sort ? 'active' : ''}`}
             onClick={() => this.handleFilterClick('sort')}
           >
-            <SvgIcon name="paixu" width="14" height="14" />
+            <SvgIcon
+              name="paixu"
+              width="14"
+              height="14"
+              color={this.sortText ? '#108ee9' : null}
+            />
           </div>
         </div>
         <div className="filter-b">

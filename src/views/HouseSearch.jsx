@@ -1,21 +1,26 @@
 import React, { Component } from 'react';
 import { SearchBar } from 'antd-mobile';
 import SvgIcon from 'comp/SvgIcon';
+import { setStorageByKey, getStorageByKey } from '@/util';
 
 // localstorage search key
 const historyKey = 'search_history';
+const historyQuery = 'search_query';
 
 class SearchPage extends Component {
   constructor() {
     super();
-    this.state = {
-      searchHistory: []
-    };
+
     // get search history from localstorage
-    const history = window.localStorage.getItem(historyKey);
-    if (history) {
-      this.state.searchHistory = JSON.parse(history);
-    }
+    const history = getStorageByKey(historyKey, 'local');
+
+    // get search query from sessionStorage
+    const query = getStorageByKey(historyQuery);
+
+    this.state = {
+      searchHistory: history || [],
+      query: query
+    };
   }
 
   componentDidMount() {
@@ -28,8 +33,26 @@ class SearchPage extends Component {
       let query = {
         title: val
       };
+      // set value to localStorge
+      let searchHistory = getStorageByKey(historyKey, 'local');
+      if (searchHistory) {
+        // max length is 7
+        if (searchHistory.length > 7) {
+          searchHistory.pop();
+        }
+        // add history
+        if (!searchHistory.includes(val)) {
+          searchHistory.push(val);
+        }
+      } else {
+        searchHistory = [val];
+      }
+
+      // set history to localStorage
+      setStorageByKey(historyKey, searchHistory, 'local');
       // set query to sessionStorage
-      window.sessionStorage.setItem('search_query', JSON.stringify(query));
+      setStorageByKey(historyQuery, query);
+      // go index
       this.props.history.replace('/');
     } else {
       this.handleCancel();
@@ -38,30 +61,43 @@ class SearchPage extends Component {
 
   // search input cancel event
   handleCancel = () => {
-    window.sessionStorage.removeItem('search_query');
     this.props.history.replace('/');
+  };
+
+  // search input clear event
+  handleClear = () => {
+    window.sessionStorage.removeItem(historyQuery);
   };
 
   // delete search history
   removeHistory = () => {
-    localStorage.removeItem(historyKey);
+    window.localStorage.removeItem(historyKey);
+    window.sessionStorage.removeItem(historyQuery);
     this.setState({
-      searchHistory: []
+      searchHistory: [],
+      query: null
     });
+    this.autoFocusInst.focus();
   };
 
+  // history item click
+  historyClick(value) {
+    this.handleSubmit(value);
+  }
+
   render() {
-    const { searchHistory } = this.state;
+    const { searchHistory, query } = this.state;
     return (
       <div className="search">
         <SearchBar
-          placeholder="请输入地铁、户型、价格等"
+          placeholder="请输入关键词"
+          defaultValue={query && query.title ? query.title : ''}
           showCancelButton={true}
           maxLength={20}
           ref={ref => (this.autoFocusInst = ref)}
           onSubmit={val => this.handleSubmit(val)}
           onCancel={this.handleCancel}
-          onClear={() => console.log('clear')}
+          onClear={this.handleClear}
         />
         {searchHistory.length ? (
           <div className="search-history">
@@ -70,7 +106,11 @@ class SearchPage extends Component {
             </div>
             <div className="search-history-item">
               {searchHistory.map((item, index) => (
-                <div className="item flexbox ac" key={index}>
+                <div
+                  className="item flexbox ac"
+                  key={index}
+                  onClick={e => this.historyClick(item)}
+                >
                   <SvgIcon name="time" color="#666" />
                   <span className="">{item}</span>
                   <div className="border1px" />

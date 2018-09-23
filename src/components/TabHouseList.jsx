@@ -6,6 +6,7 @@ import BackTop from 'comp/BackTop';
 import HouseItem from './HouseItem';
 import Header from 'comp/Header';
 import { GetList } from '@/api';
+import { getStorageByKey } from '@/util';
 
 const NoMoreText = '没有更多了哦~';
 
@@ -16,10 +17,8 @@ class TabHouseList extends Component {
       rowHasChanged: (row1, row2) => row1 !== row2
     });
     // get searchQuery from sessionStorage
-    let searchQuery = window.sessionStorage.getItem('search_query');
-    if (searchQuery) {
-      searchQuery = JSON.parse(searchQuery);
-    }
+    const searchQuery = getStorageByKey('search_query');
+
     this.state = {
       dataSource: dataSource.cloneWithRows([]),
       refreshing: false,

@@ -30,3 +30,10 @@ export const getStorageByKey = (key, type = 's') => {
   }
   return result;
 };
+
+// crypto value
+export const sha1 = val =>
+  require('crypto')
+    .createHash('sha1')
+    .update(val)
+    .digest('hex');

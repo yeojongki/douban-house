@@ -17,6 +17,15 @@ class Tabs extends React.Component {
     this.props.history.push('/search');
   };
 
+  // tab mine nav event
+  handleNavto = (type, url) => {
+    if (type === 'route') {
+      this.props.history.push(url);
+    } else {
+      window.location.href = url;
+    }
+  };
+
   render() {
     return (
       <div className="layout">
@@ -52,7 +61,7 @@ class Tabs extends React.Component {
               });
             }}
           >
-            <TabMine />
+            <TabMine navTo={this.handleNavto} />
           </TabBar.Item>
         </TabBar>
         <style jsx>{`

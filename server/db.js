@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
+const config = require('./config');
 
 // connect
-mongoose.connect('mongodb://localhost:27017/douban-new');
+mongoose.connect(config.mongoUrl);
 const db = mongoose.connection;
 db.once('error', () => {
   console.error('mongodb connect error');
@@ -10,8 +11,8 @@ db.once('open', () => {
   console.error('mongodb connect success');
 });
 
-// create schema
-const housesSchema = new mongoose.Schema({
+// create house schema
+const houseSchema = new mongoose.Schema({
   tid: String,
   author: String,
   title: String,
@@ -29,14 +30,22 @@ const housesSchema = new mongoose.Schema({
 });
 
 // set tid index & unique
-housesSchema.index({ tid: 1 }, { unique: true });
+houseSchema.index({ tid: 1 }, { unique: true });
 
-const Houses = mongoose.model('Houses', housesSchema);
+const House = mongoose.model('House', houseSchema);
 
-Houses.on('index', error => {
+House.on('index', error => {
   if (error) {
-    console.log(`Houses collection create index error:${error}`);
+    console.log(`House collection create index error:${error}`);
   }
 });
 
-module.exports = { Houses: Houses };
+// create user schema
+const usersSchema = new mongoose.Schema({
+  name: String,
+  password: String,
+  ctime: String
+});
+const User = mongoose.model('User', usersSchema);
+
+module.exports = { House, User };

@@ -7,8 +7,8 @@ export default props => (
     </svg>
     <style jsx>{`
       .icon {
-        width: ${props.width || 22}PX;
-        height: ${props.height || 22}PX;
+        width: ${props.width || 26}px;
+        height: ${props.height || 26}px;
         vertical-align: -0.15em;
         fill: ${props.color || 'currentColor'};
         overflow: hidden;

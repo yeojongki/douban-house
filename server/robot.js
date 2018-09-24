@@ -221,7 +221,7 @@ class Robot {
     await sleep(Math.ceil(Math.random() * 50 * 1000) + 5000);
     // fetch and update
     await this.fetchDetail(tid).then(houseInfo => {
-      db.Houses.findOneAndUpdate({ tid: tid }, houseInfo, null)
+      db.House.findOneAndUpdate({ tid: tid }, houseInfo, null)
         .then(() => {
           console.log(`success update tid ${tid}`);
           resolve();
@@ -239,7 +239,7 @@ class Robot {
     let that = this;
     return new Promise((resolve, reject) => {
       if (data.length) {
-        db.Houses.insertMany(data, { ordered: false })
+        db.House.insertMany(data, { ordered: false })
           .then(doc => {
             console.log(`success insert ${data.length} data at ${new Date()}`);
             // avoid fetch duplicate tids, so after insert and fetch detail
@@ -284,7 +284,7 @@ class Robot {
 
   // judge if need delete
   handleDelete(maxNum, delNum) {
-    db.Houses.countDocuments('tid').then(len => {
+    db.House.countDocuments('tid').then(len => {
       return len >= maxNum ? Promise.resolve(this.deleteDB(delNum)) : false;
     });
   }
@@ -295,7 +295,7 @@ class Robot {
       const ids = [];
 
       // [{_id:123}, {_id:456}] => [123,456]
-      db.Houses.find()
+      db.House.find()
         .sort({ _id: 1 })
         .select('tid')
         .limit(num)
@@ -305,7 +305,7 @@ class Robot {
             doc.map(e => {
               ids.push(e.tid);
             });
-            db.Houses.remove({ tid: { $in: ids } }, (err, success) => {
+            db.House.remove({ tid: { $in: ids } }, (err, success) => {
               if (err) {
                 console.error(err);
               } else {

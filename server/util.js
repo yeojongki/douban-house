@@ -148,11 +148,26 @@ const easyArrDiff = (arr1, arr2) => {
   return result;
 };
 
+// ctx success return
+const successRet = (data, msg = 'success', code = 1) => ({
+  code,
+  data,
+  msg
+});
+
+// ctx error return
+const errorRet = (msg = 'error', code = 0) => ({
+  code,
+  msg
+});
+
 module.exports = {
-  write: write,
-  sleep: sleep,
-  scheduleJob: scheduleJob,
-  extractHouse: extractHouse,
-  userAgents: userAgents,
-  easyArrDiff: easyArrDiff
+  write,
+  sleep,
+  scheduleJob,
+  extractHouse,
+  userAgents,
+  easyArrDiff,
+  successRet,
+  errorRet
 };

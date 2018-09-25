@@ -4,7 +4,7 @@ const {
   houseListController,
   houseDetailController,
   loginController,
-  collectController
+  likesController
 } = require('./controllers');
 
 const router = new Router({
@@ -17,7 +17,7 @@ router.post('/list', houseListController);
 router.get('/house/:tid', houseDetailController);
 // handle login
 router.post('/login', loginController);
-// get user collection
-router.post('/collect', verifyMiddleware, collectController);
+// get user likes
+router.post('/likes', verifyMiddleware, likesController);
 
 module.exports = router;

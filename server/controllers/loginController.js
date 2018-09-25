@@ -11,13 +11,13 @@ const createToken = (payload, secret = config.secret, t = config.expiresIn) =>
 
 /**
  * login
- * @param {Object} user {name,password}
+ * @param {Object} user {username,password}
  */
 module.exports = async ctx => {
   const user = ctx.request.body;
-  const { name, password } = user;
-  // no name or password
-  if (!name) {
+  const { username, password } = user;
+  // no username or password
+  if (!username) {
     ctx.body = errorRet(`请输入用户名`);
     return;
   }
@@ -27,20 +27,31 @@ module.exports = async ctx => {
   }
   // check user if exist
   try {
-    const userRet = await db.User.findOne({ name }, { _id: 0, __v: 0 });
+    const userRet = await db.User.findOne({ username }, { _id: 0, __v: 0 });
 
     if (userRet) {
       // check password
       if (userRet.password === password) {
-        ctx.body = successRet({ token: createToken({ name }), name: name });
+        await db.User.findOneAndUpdate(
+          { username },
+          { ltime: +new Date() + '' }
+        );
+        ctx.body = successRet({
+          token: createToken({ username }),
+          username: username
+        });
       } else {
         // password no match
         ctx.body = errorRet(`密码不正确`);
       }
     } else {
       // register & login
-      await new db.User(user).save();
-      ctx.body = successRet({ token: createToken({ name }), name: name });
+      let t = +new Date() + '';
+      await new db.User({ ...user, ctime: t, ltime: t }).save();
+      ctx.body = successRet({
+        token: createToken({ username }),
+        username: username
+      });
     }
   } catch (e) {
     ctx.body = errorRet(`login error: ${e.message || e}`);

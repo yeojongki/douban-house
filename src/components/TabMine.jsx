@@ -33,7 +33,11 @@ export default props => {
         <div className="user">
           <ImgProxy className={`avatar ${scoped.className}`} />
           {login ? null : (
-            <Button type="ghost" className={`login-btn ${scoped.className}`}>
+            <Button
+              type="ghost"
+              className={`login-btn ${scoped.className}`}
+              onClick={() => props.navTo('route', '/login')}
+            >
               登录
             </Button>
           )}
@@ -47,11 +51,11 @@ export default props => {
             <span>房源</span>
           </div>
           <div
-            className="cate-item flexbox ac collect"
-            onClick={() => props.navTo('route', '/collect')}
+            className="cate-item flexbox ac"
+            onClick={() => props.navTo('route', '/likes')}
           >
-            <SvgIcon name="collect" width="28" height="28" />
-            <span>收藏</span>
+            <SvgIcon name="like" width="28" height="28" />
+            <span>喜欢</span>
           </div>
         </div>
         <List className="about">

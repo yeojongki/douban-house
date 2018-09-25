@@ -1,11 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import { List, Button, Icon, Toast } from 'antd-mobile';
+import { List, Button, Toast, Modal } from 'antd-mobile';
 import SwipeableViews from 'react-swipeable-views';
 import { autoPlay } from 'react-swipeable-views-utils';
 import Pagination from 'comp/Pagination';
 import WarnTips from 'comp/WarnTips';
 import { GetHouseById } from '@/api';
 import ImgProxy from 'comp/ImgProxy';
+import SvgIcon from 'comp/SvgIcon';
 import { resolveScopedStyles } from '@/util';
 
 const douban_prefix = `https://www.douban.com/group/topic/`;
@@ -22,11 +23,20 @@ const scoped = resolveScopedStyles(
         margin-right: 15px;
         float: left;
       }
-      .center {
+      .center-icon {
         margin: 0 auto;
       }
-      .collect-btn {
-        margin-right: 20px;
+      .like {
+        &-btn {
+          margin-right: 40px;
+          &::before {
+            border:none !important;
+          }
+        }
+        &-icon {
+          margin-top: -0.2em;
+          margin-right: 0.5em;
+        }
       }
     `}</style>
   </scope>
@@ -65,6 +75,7 @@ class HouseDetail extends Component {
   }
   render() {
     let { house, index } = this.state;
+    const Alert = Modal.alert;
     return (
       <div className="house">
         <section className="house-carousel">
@@ -112,7 +123,7 @@ class HouseDetail extends Component {
           <div className="house-info-detail flexbox">
             <div className="item size flexbox">
               {house.model ? (
-                <h4 onClick={() => Toast.info(house.model)}>{house.model}</h4>
+                <h4 onClick={() => Toast.show(house.model)}>{house.model}</h4>
               ) : (
                 <h4>暂无</h4>
               )}
@@ -137,22 +148,35 @@ class HouseDetail extends Component {
           <div className="border1px" />
           <div className="ft-item left flexbox">
             <div className="ft-item-wx flexbox">
-              <Icon type="ellipsis" className={`center ${scoped.className}`} />
+              <SvgIcon
+                name="wechat"
+                width="20"
+                height="20"
+                className={`center-icon ${scoped.className}`}
+              />
               <p
-                onClick={() =>
-                  Toast.info(
-                    (house.contact &&
-                      house.contact.type === 'wechat' &&
-                      house.contact.value) ||
-                      '暂无'
-                  )
-                }
+                onClick={() => {
+                  if (
+                    house.contact &&
+                    house.contact.type === 'wechat' &&
+                    house.contact.value
+                  ) {
+                    return Alert('微信', house.contact.value);
+                  } else {
+                    return Toast.show('暂无');
+                  }
+                }}
               >
                 微信
               </p>
             </div>
             <div className="ft-item-phone flexbox">
-              <Icon type="ellipsis" className={`center ${scoped.className}`} />
+              <SvgIcon
+                name="phone"
+                width="22"
+                height="22"
+                className={`center-icon ${scoped.className}`}
+              />
               <p>
                 {house.contact &&
                 house.contact.type &&
@@ -160,7 +184,7 @@ class HouseDetail extends Component {
                   house.contact.type === 'mobile') ? (
                   <a href={`tel:${house.contact.value}`}>电话</a>
                 ) : (
-                  <span onClick={() => Toast.info('暂无')}>电话</span>
+                  <span onClick={() => Toast.show('暂无')}>电话</span>
                 )}
               </p>
             </div>
@@ -169,16 +193,21 @@ class HouseDetail extends Component {
             <Button
               type="warning"
               size="small"
-              inline={true}
-              icon="ellipsis"
-              className={`collect-btn ${scoped.className}`}
+              inline
+              className={`like-btn ${scoped.className}`}
             >
-              收藏
+              <SvgIcon
+                name="like"
+                width="18"
+                height="18"
+                className={`like-icon ${scoped.className}`}
+              />
+              喜欢
             </Button>
             <Button
-              type="ghost"
+              type="primary"
               size="small"
-              inline={true}
+              inline
               icon="right"
               onClick={() =>
                 (window.location.href = `${douban_prefix + house.tid}`)
@@ -265,9 +294,10 @@ class HouseDetail extends Component {
                   flex: 1;
                 }
                 &.right {
-                  flex: 1;
+                  flex: 2;
                   align-items: center;
-                  justify-content: center;
+                  justify-content: flex-end;
+                  padding-right: 30px;
                 }
                 &-wx,
                 &-phone {

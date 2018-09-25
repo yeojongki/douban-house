@@ -1,11 +1,11 @@
 const houseListController = require('./houseListController');
 const houseDetailController = require('./houseDetailController');
 const loginController = require('./loginController');
-const collectController = require('./collectController');
+const likesController = require('./likesController');
 
 module.exports = {
   houseListController,
   houseDetailController,
   loginController,
-  collectController
+  likesController
 };

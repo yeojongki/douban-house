@@ -42,9 +42,10 @@ House.on('index', error => {
 
 // create user schema
 const usersSchema = new mongoose.Schema({
-  name: String,
+  username: String,
   password: String,
-  ctime: String
+  ctime: String,
+  ltime: String
 });
 const User = mongoose.model('User', usersSchema);
 

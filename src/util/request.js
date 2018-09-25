@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { Toast } from 'antd-mobile';
 // import Cookie from "js-cookie";
 const BASE_URL = '/api';
 
@@ -24,21 +25,18 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   response => {
     const res = response.data;
-    if (res.code === 400) {
-      console.error(res.msg);
+    if (res.code === 0) {
+      Toast.show(res.msg);
     } else {
       return response.data;
     }
   },
   error => {
-    if (
-      error.message === 'Network Error' ||
-      error.message === 'timeout of 15000ms exceeded'
-    ) {
-      error.message = '服务器出错，请联系管理员';
-      console.error.$toast(error.message);
+    if (error.message === 'Request failed with status code 500') {
+      Toast.show('服务器出错');
+    } else {
+      Toast.show(error.message);
     }
-
     return Promise.reject(error);
   }
 );

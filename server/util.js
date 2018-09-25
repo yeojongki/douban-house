@@ -132,14 +132,14 @@ const userAgents = [
 const easyArrDiff = (arr1, arr2) => {
   let hash = {};
   let result = [];
-  function handle(a, b) {
+  const handle = (a, b) => {
     a.map(item => {
       if (!b.includes(item)) {
         hash[item] = true;
         result.push(item);
       }
     });
-  }
+  };
   if (arr1.length > arr2.length) {
     handle(arr1, arr2);
   } else {

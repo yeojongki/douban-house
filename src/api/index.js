@@ -33,3 +33,11 @@ export const GetList = (page = 1, size = 20, filter = []) => {
       });
   });
 };
+
+export const AjaxLogin = user => {
+  return request({
+    method: 'POST',
+    data: user,
+    url: '/login'
+  });
+};

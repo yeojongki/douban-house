@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import ImgProxy from 'comp/ImgProxy';
+import LazyImage from 'comp/LazyImage';
 import { resolveScopedStyles } from '@/util';
 
 const scoped = resolveScopedStyles(
@@ -21,8 +21,9 @@ export default props => {
     <Link to={'/detail/' + house.tid}>
       <div className="house flexbox">
         <div className="house-img">
-          <ImgProxy
+          <LazyImage
             src={house.imgs[0]}
+            data-src={house.imgs[0]}
             className={`thumb ${scoped.className}`}
           />
         </div>

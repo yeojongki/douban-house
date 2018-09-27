@@ -26,7 +26,7 @@ class TabHouseList extends Component {
       height: null,
       hasMore: true,
       page: 1,
-      size: 20,
+      size: 30,
       showBackTop: false,
       query: searchQuery
     };
@@ -60,7 +60,7 @@ class TabHouseList extends Component {
   }
 
   // handle get house list
-  async handleGetList(page, size = 20, query) {
+  async handleGetList(page, size = 30, query) {
     this.setState({ isLoading: true });
     let queryArr = [];
     let dataArr;
@@ -146,7 +146,7 @@ class TabHouseList extends Component {
   // show `BackTop` component
   handleShowBackTop(e) {
     let scrollTop = e.target.scrollTop;
-    if (scrollTop > this.state.height * 0.66) {
+    if (scrollTop > document.documentElement.clientHeight * 0.5) {
       this.setState({ showBackTop: true });
     } else {
       this.setState({ showBackTop: false });

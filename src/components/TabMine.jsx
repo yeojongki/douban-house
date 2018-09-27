@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Button, List } from 'antd-mobile';
 import SvgIcon from 'comp/SvgIcon';
-import ImgProxy from 'comp/ImgProxy';
+import LazyImage from 'comp/LazyImage';
 import { resolveScopedStyles } from '@/util';
 
 const scoped = resolveScopedStyles(
@@ -31,7 +31,7 @@ export default props => {
     <Fragment>
       <div className="mine">
         <div className="user">
-          <ImgProxy className={`avatar ${scoped.className}`} />
+          <LazyImage className={`avatar ${scoped.className}`} />
           {login ? null : (
             <Button
               type="ghost"

@@ -5,7 +5,7 @@ import { autoPlay } from 'react-swipeable-views-utils';
 import Pagination from 'comp/Pagination';
 import WarnTips from 'comp/WarnTips';
 import { GetHouseById } from '@/api';
-import ImgProxy from 'comp/ImgProxy';
+import LazyImage from 'comp/LazyImage';
 import SvgIcon from 'comp/SvgIcon';
 import { resolveScopedStyles } from '@/util';
 
@@ -64,6 +64,7 @@ class HouseDetail extends Component {
     });
   };
 
+
   componentDidMount() {
     GetHouseById(this.id).then(res => {
       if (res) {
@@ -87,7 +88,7 @@ class HouseDetail extends Component {
                 onChangeIndex={this.handleChangeIndex}
               >
                 {house.imgs.map(i => (
-                  <ImgProxy src={i} key={i} />
+                  <LazyImage src={i} key={i} />
                 ))}
               </AutoPlaySwipeableViews>
               <Pagination
@@ -97,7 +98,7 @@ class HouseDetail extends Component {
               />
             </Fragment>
           ) : (
-            <ImgProxy />
+            <LazyImage />
           )}
         </section>
 
@@ -109,7 +110,7 @@ class HouseDetail extends Component {
 
           <List className={`house-info-person ${scoped.className}`}>
             <List.Item className={`row ${scoped.className}`} arrow="horizontal">
-              <ImgProxy
+              <LazyImage
                 src={house.userface}
                 className={`avatar ${scoped.className}`}
               />

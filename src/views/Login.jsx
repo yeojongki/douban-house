@@ -25,6 +25,10 @@ class Login extends Component {
     };
   }
 
+  componentDidMount() {
+    this.nameRef.focus();
+  }
+
   // input focus
   handleFocus = field => {
     this.setState({ activeItem: field });
@@ -58,9 +62,12 @@ class Login extends Component {
     AjaxLogin(this.state.form)
       .then(res => {
         console.log(res);
-        Toast.show('登录成功');
+        if (res.code === 1) {
+          Toast.info('登录成功', 1, this.props.history.replace('/'));
+        }
       })
       .catch(() => {
+        this.pwdRef.focus();
         setTimeout(() => Toast.hide(), 1500);
       });
   };
@@ -80,6 +87,7 @@ class Login extends Component {
               className={`form-item-icon ${scoped.className}`}
             />
             <input
+              ref={ref => (this.nameRef = ref)}
               type="text"
               placeholder="请输入用户名"
               onInput={e => this.handleChange('username', e)}
@@ -151,6 +159,7 @@ class Login extends Component {
                     display: block;
                     outline: none;
                     border: none;
+                    background: transparent;
                     width: 100%;
                     padding: 30px 0 30px 80px;
                     margin-top: 15px;

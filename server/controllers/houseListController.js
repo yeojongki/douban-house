@@ -23,7 +23,7 @@ module.exports = async ctx => {
   const { page = 1, size = 10 } = body;
 
   // if filter
-  if (body.filter.length) {
+  if (body.filter && body.filter.length) {
     Object.values(body.filter).forEach(item => {
       query[item.key] = item.value;
     });

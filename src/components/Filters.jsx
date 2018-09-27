@@ -143,10 +143,6 @@ class Filters extends Component {
               position: static;
             }
           }
-          .filter-h-item.active {
-            .icon-arrow {
-            }
-          }
           .icon-arrow {
             vertical-align: middle;
             width: 24px;
@@ -167,7 +163,7 @@ class Filters extends Component {
       moneyText
     } = this.state;
     return (
-      <div className="filter">
+      <div className="filter" ref={this.props.filterRef}>
         <div className="filter-h flexbox">
           <div
             className={`filter-h-item ${area || areaText ? 'active' : ''}`}
@@ -294,11 +290,11 @@ class Filters extends Component {
             }
             &-b {
               position: absolute;
-              z-index: 80 !important;
+              z-index: 10;
               width: 100%;
               &-item {
                 position: absolute;
-                z-index: 80 !important;
+                z-index: 10;
                 width: 100%;
               }
             }
@@ -310,7 +306,7 @@ class Filters extends Component {
             height: 100%;
             background-color: #000;
             opacity: 0.4;
-            z-index: 79;
+            z-index: 9;
             visibility: hidden;
             &.show {
               visibility: visible;

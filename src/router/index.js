@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Loadable from 'react-loadable';
 import Tabs from '@/views/Tabs';
 
-function MyLoadingComponent({ error, pastDelay }) {
+function LoadingComponent({ error, pastDelay }) {
   if (error) {
     return <div>Error!</div>;
   } else if (pastDelay) {
@@ -15,22 +15,22 @@ function MyLoadingComponent({ error, pastDelay }) {
 
 const Login = Loadable({
   loader: () => import('@/views/Login'),
-  loading: MyLoadingComponent
+  loading: LoadingComponent
 });
 
 const About = Loadable({
   loader: () => import('@/views/About'),
-  loading: MyLoadingComponent
+  loading: LoadingComponent
 });
 
 const HouseSearch = Loadable({
   loader: () => import('@/views/HouseSearch'),
-  loading: MyLoadingComponent
+  loading: LoadingComponent
 });
 
 const HouseDetail = Loadable({
   loader: () => import('@/views/HouseDetail'),
-  loading: MyLoadingComponent
+  loading: LoadingComponent
 });
 
 export default () => (

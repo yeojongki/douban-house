@@ -1,141 +1,69 @@
 import React, { Fragment, Component } from 'react';
 import ReactDOM from 'react-dom';
+import { connect } from 'react-redux';
+import {
+  fetchHouseList,
+  setScrollHeight,
+  changePage
+} from '@/store/actions/houseList';
 import { PullToRefresh, ListView, ActivityIndicator } from 'antd-mobile';
 import Filters from 'comp/Filters';
 import BackTop from 'comp/BackTop';
 import HouseItem from './HouseItem';
 import Header from 'comp/Header';
-import { GetList } from '@/api';
 import { getStorageByKey } from '@/util';
-
 const NoMoreText = '没有更多了哦~';
 
 class TabHouseList extends Component {
   constructor(props) {
     super(props);
-    const dataSource = new ListView.DataSource({
-      rowHasChanged: (row1, row2) => row1 !== row2
-    });
+
     // get searchQuery from sessionStorage
     const searchQuery = getStorageByKey('search_query');
 
     this.state = {
-      dataSource: dataSource.cloneWithRows([]),
-      refreshing: false,
-      isLoading: false,
-      height: null,
-      hasMore: true,
-      page: 1,
-      size: 30,
       showBackTop: false,
       query: searchQuery
     };
   }
 
   componentDidMount() {
-    // init ajax
-    let { page, size, query } = this.state;
-    this.handleGetList(page, size, query).then(list => {
-      this.rData = list;
-      if (list.length < size) {
-        this.setState({
-          hasMore: false
-        });
-      }
-      this.setState({
-        dataSource: this.state.dataSource.cloneWithRows(list),
-        isLoading: false
-      });
-    });
-
+    // init list
+    this.handleGetList();
     // set list view height
-    setTimeout(() => {
-      const $ = el => document.querySelector(el);
-      let top_h = $('.filter').getBoundingClientRect().bottom;
-      let bot_h = $('.am-tabs-tab-bar-wrap').getBoundingClientRect().height;
-      this.setState({
-        height: document.documentElement.clientHeight - top_h - bot_h
-      });
-    }, 0);
+    let top_h = this.filterRef.getBoundingClientRect().bottom;
+    const bot_h = 50;
+    this.props.setScrollHeight(
+      document.documentElement.clientHeight - top_h - bot_h
+    );
   }
 
   // handle get house list
-  async handleGetList(page, size = 30, query) {
-    this.setState({ isLoading: true });
+  handleGetList(loadmore) {
+    const { query } = this.state;
+    const { fetchHouseList, page, size } = this.props;
     let queryArr = [];
-    let dataArr;
     for (let i in query) {
       queryArr.push({ key: i, value: query[i] });
     }
-    try {
-      dataArr = await GetList(page, size, queryArr);
-    } catch (error) {
-      console.error(error);
-    }
-    return dataArr || [];
+    fetchHouseList(page, size, queryArr, loadmore);
   }
 
   // refresh event
   onRefresh = () => {
-    this.setState({
-      page: 1,
-      refreshing: true,
-      isLoading: true
-    });
-    let { page, size, query } = this.state;
-    this.handleGetList(page, size, query).then(list => {
-      if (list.length && list.length === size) {
-        this.setState({
-          dataSource: this.state.dataSource.cloneWithRows(list),
-          hasMore: true
-        });
-      } else if (list.length && list.length < size) {
-        this.setState({
-          dataSource: this.state.dataSource.cloneWithRows(list),
-          hasMore: false
-        });
-      } else {
-        // no data
-        this.setState({
-          hasMore: false
-        });
-      }
-      // common setState
-      this.setState({
-        isLoading: false,
-        refreshing: false
-      });
-    });
+    const { changePage } = this.props;
+    changePage(1);
+    this.handleGetList();
   };
 
   // loadmore event
   onEndReached = () => {
-    if (this.state.isLoading || !this.state.hasMore) {
+    const { isLoading, hasMore, changePage, page } = this.props;
+    if (isLoading || !hasMore) {
       return;
     }
-    this.setState(prev => ({ page: prev.page + 1, isLoading: true }));
-    // ajax
-    let { page, size, query } = this.state;
-    this.handleGetList(page, size, query).then(list => {
-      if (list.length && list.length === size) {
-        this.rData = [...this.rData, ...list];
-        this.setState({
-          dataSource: this.state.dataSource.cloneWithRows(this.rData),
-          isLoading: false
-        });
-      } else if (list.length && list.length < size) {
-        this.setState({
-          dataSource: this.state.dataSource.cloneWithRows(this.rData),
-          hasMore: false
-        });
-      } else {
-        // no more
-        this.setState({
-          hasMore: false,
-          isLoading: false
-        });
-      }
-    });
+    changePage(page + 1);
+    this.handleGetList(true);
   };
 
   // ListView scroll to top
@@ -162,26 +90,6 @@ class TabHouseList extends Component {
   handleFilterClose = () => {
     ReactDOM.findDOMNode(this.lv).style.overflow = 'auto';
   };
-
-  // get list & set datasource
-  setDataSource() {
-    let { page, size, query } = this.state;
-    let queryArr = [];
-    for (let i in query) {
-      queryArr.push({ key: i, value: query[i] });
-    }
-    GetList(page, size, queryArr).then(list => {
-      this.rData = list;
-      if (list.length < size) {
-        this.setState({
-          hasMore: false
-        });
-      }
-      this.setState({
-        dataSource: this.state.dataSource.cloneWithRows(list)
-      });
-    });
-  }
 
   // build new filter query
   buildNewQuery(key, exclude, delKey, value, customQuery, q) {
@@ -215,14 +123,15 @@ class TabHouseList extends Component {
       {
         query: { ...curQuery, ...query }
       },
-      () => this.setDataSource()
+      () => this.handleGetList()
     );
   }
 
   // filter menus change event
   handleFilterChange = (type, v) => {
+    const { changePage } = this.props;
     // reset page to 1
-    this.setState({ page: 1 });
+    changePage(1);
     // set listview style `overflow:auto`
     this.handleFilterClose();
     // let query, newQuery;
@@ -256,6 +165,10 @@ class TabHouseList extends Component {
   };
 
   render() {
+    const ds = new ListView.DataSource({
+      rowHasChanged: (r1, r2) => r1 !== r2
+    });
+    const { list, height, hasMore, refreshing } = this.props;
     const row = rowData => {
       return <HouseItem house={rowData} />;
     };
@@ -263,18 +176,19 @@ class TabHouseList extends Component {
       <Fragment>
         <Header searchClick={this.props.searchClick} />
         <Filters
+          filterRef={ref => (this.filterRef = ref)}
           open={this.handleFilterOpen}
           close={this.handleFilterClose}
           change={this.handleFilterChange}
         />
         <ListView
           style={{
-            height: this.state.height
+            height: height
           }}
           ref={el => (this.lv = el)}
-          dataSource={this.state.dataSource}
+          dataSource={ds.cloneWithRows(list)}
           renderFooter={() => {
-            return this.state.hasMore ? (
+            return hasMore ? (
               <div className="flexbox jc">
                 <ActivityIndicator text="正在加载" />
               </div>
@@ -284,10 +198,7 @@ class TabHouseList extends Component {
           }}
           renderRow={row}
           pullToRefresh={
-            <PullToRefresh
-              refreshing={this.state.refreshing}
-              onRefresh={this.onRefresh}
-            />
+            <PullToRefresh refreshing={refreshing} onRefresh={this.onRefresh} />
           }
           onScroll={e => {
             this.handleShowBackTop(e);
@@ -302,4 +213,32 @@ class TabHouseList extends Component {
     );
   }
 }
-export default TabHouseList;
+
+const mapState = state => {
+  return {
+    list: state.houseList.list,
+    size: state.houseList.size,
+    page: state.houseList.page,
+    height: state.houseList.height,
+    isLoading: state.houseList.loading.isLoading,
+    hasMore: state.houseList.loading.hasMore,
+    refreshing: state.houseList.loading.refreshing
+  };
+};
+
+const mapDispatch = dispatch => ({
+  fetchHouseList(page, size, filter, loadmore) {
+    dispatch(fetchHouseList(page, size, filter, loadmore));
+  },
+  setScrollHeight(height) {
+    dispatch(setScrollHeight(height));
+  },
+  changePage(page) {
+    dispatch(changePage(page));
+  }
+});
+
+export default connect(
+  mapState,
+  mapDispatch
+)(TabHouseList);

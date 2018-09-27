@@ -15,12 +15,14 @@ const scoped = resolveScopedStyles(
         vertical-align: middle;
       }
       .login-btn {
-        width: 250px;
+        width: 200px;
         height: 70px;
         line-height: 70px;
         margin-left: 60px;
-        display: inline-block;
         vertical-align: middle;
+        &::before{
+          border-width: 2PX !important;
+        }
       }
     `}</style>
   </scope>
@@ -34,6 +36,7 @@ export default props => {
           <LazyImage className={`avatar ${scoped.className}`} />
           {login ? null : (
             <Button
+              inline
               type="ghost"
               className={`login-btn ${scoped.className}`}
               onClick={() => props.navTo('route', '/login')}

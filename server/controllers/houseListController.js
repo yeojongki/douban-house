@@ -57,10 +57,9 @@ module.exports = async ctx => {
       delete query.size_lt;
     }
     if (h('model')) {
-      // RegExp
-      if (Object.prototype.toString.call(query.model) === '[object RegExp]') {
+      if (query.model) {
         query.model = { $regex: query.model };
-      } else if (!query.model) {
+      } else {
         delete query.model;
       }
     }

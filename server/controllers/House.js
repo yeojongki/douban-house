@@ -1,5 +1,40 @@
 const db = require('../db');
-const { successRet, errorRet } = require('../util');
+const { successRet, errorRet, verifyToken } = require('../util');
+
+/**
+ * get house detail
+ * @param {Number} tid topic id
+ */
+const GetDetail = async ctx => {
+  const {
+    params: { tid }
+  } = ctx;
+  const token = ctx.header['x-token'];
+  // if user is login
+  let isLike;
+  if (token) {
+    try {
+      let decode = verifyToken(token);
+      let { username } = decode;
+      const user = await db.User.findOne({ username }, { _id: 0, __v: 0 });
+      if (user) {
+        if (user.likes.includes(tid)) {
+          isLike = true;
+        }
+      }
+    } catch (e) {
+      ctx.body = errorRet(`house detail getUser error: ${e.message || e}`);
+    }
+  }
+
+  // find house
+  try {
+    const house = await db.House.findOne({ tid }, { _id: 0, __v: 0 });
+    ctx.body = successRet({ house, isLike });
+  } catch (e) {
+    ctx.body = errorRet(`get house id[${tid}] error: ${e.message || e}`);
+  }
+};
 
 /**
  * @description get/search house list
@@ -16,7 +51,7 @@ const { successRet, errorRet } = require('../util');
  * @param {Number} price_gt gt house price
  * @param {Number} price_lt lt house price
  */
-module.exports = async ctx => {
+const GetList = async ctx => {
   let body = ctx.request.body,
     sort = { ctime: -1 },
     query = {};
@@ -98,4 +133,9 @@ module.exports = async ctx => {
   } catch (e) {
     ctx.body = errorRet(`search house error: ${e.message || e}`);
   }
+};
+
+module.exports = {
+  GetList,
+  GetDetail
 };

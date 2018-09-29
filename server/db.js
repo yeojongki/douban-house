@@ -45,7 +45,8 @@ const usersSchema = new mongoose.Schema({
   username: String,
   password: String,
   ctime: String,
-  ltime: String
+  ltime: String,
+  likes: [String]
 });
 const User = mongoose.model('User', usersSchema);
 

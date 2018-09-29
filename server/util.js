@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+const config = require('./config');
 const fs = require('fs');
 const schedule = require('node-schedule');
 
@@ -161,6 +163,15 @@ const errorRet = (msg = 'error', code = 0) => ({
   msg
 });
 
+// verify token by jsonwebtoken
+const verifyToken = token => jwt.verify(token, config.secret);
+
+// create token by jsonwebtoken
+const createToken = (payload, secret = config.secret, t = config.expiresIn) =>
+  jwt.sign(payload, secret, {
+    expiresIn: t
+  });
+
 module.exports = {
   write,
   sleep,
@@ -169,5 +180,7 @@ module.exports = {
   userAgents,
   easyArrDiff,
   successRet,
-  errorRet
+  errorRet,
+  verifyToken,
+  createToken
 };

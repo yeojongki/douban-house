@@ -1,10 +1,12 @@
 import React, { Component, Fragment } from 'react';
-import { List, Button, Toast, Modal } from 'antd-mobile';
+import { connect } from 'react-redux';
+import { List, Toast, Modal } from 'antd-mobile';
 import SwipeableViews from 'react-swipeable-views';
 import { autoPlay } from 'react-swipeable-views-utils';
 import Pagination from 'comp/Pagination';
+import Button from 'comp/Button';
 import WarnTips from 'comp/WarnTips';
-import { GetHouseById } from '@/api';
+import { GetHouseById, UserLikeHouse } from '@/api';
 import LazyImage from 'comp/LazyImage';
 import SvgIcon from 'comp/SvgIcon';
 import { resolveScopedStyles } from '@/util';
@@ -30,7 +32,7 @@ const scoped = resolveScopedStyles(
         &-btn {
           margin-right: 40px;
           &::before {
-            border:none !important;
+            border: none !important;
           }
         }
         &-icon {
@@ -41,20 +43,16 @@ const scoped = resolveScopedStyles(
     `}</style>
   </scope>
 );
+
 class HouseDetail extends Component {
   constructor(props) {
     super(props);
-    const {
-      match: {
-        params: { id }
-      }
-    } = props;
-    this.id = id;
     this.state = {
       index: 0,
       house: {
         imgs: []
-      }
+      },
+      isLike: false
     };
   }
 
@@ -64,18 +62,35 @@ class HouseDetail extends Component {
     });
   };
 
-
   componentDidMount() {
-    GetHouseById(this.id).then(res => {
+    GetHouseById(this.props.match.params.id).then(res => {
       if (res) {
         this.setState({
-          house: res
+          house: res.house,
+          isLike: res.isLike
         });
       }
     });
   }
+
+  // 点击喜欢获取取消喜欢
+  handleLike = () => {
+    const { isLogin, history } = this.props;
+    if (isLogin) {
+      const tid = this.props.match.params.id;
+      let { isLike } = this.state;
+      UserLikeHouse(tid, isLike).then(res => {
+        if (res && res.code === 1) {
+          this.setState({ isLike: !isLike }, () => Toast.show(res.msg, 1));
+        }
+      });
+    } else {
+      history.push('/login');
+    }
+  };
+
   render() {
-    let { house, index } = this.state;
+    let { house, index, isLike } = this.state;
     const Alert = Modal.alert;
     return (
       <div className="house">
@@ -192,28 +207,33 @@ class HouseDetail extends Component {
           </div>
           <div className="ft-item flexbox right">
             <Button
-              type="warning"
-              size="small"
-              inline
+              color="red"
+              borderColor="red"
+              mRight="15"
               className={`like-btn ${scoped.className}`}
+              onClick={this.handleLike}
             >
               <SvgIcon
-                name="like"
+                name={isLike ? 'like_fill' : 'like'}
                 width="18"
                 height="18"
                 className={`like-icon ${scoped.className}`}
               />
-              喜欢
+              {isLike ? '取消' : '喜欢'}
             </Button>
             <Button
-              type="primary"
-              size="small"
-              inline
-              icon="right"
+              color="#108ee9"
+              borderColor="#108ee9"
               onClick={() =>
                 (window.location.href = `${douban_prefix + house.tid}`)
               }
             >
+              <SvgIcon
+                name="plane"
+                width="18"
+                height="18"
+                className={`like-icon ${scoped.className}`}
+              />
               原贴
             </Button>
           </div>
@@ -320,4 +340,6 @@ class HouseDetail extends Component {
   }
 }
 
-export default HouseDetail;
+const mapStateToProps = state => ({ isLogin: Boolean(state.user.token) });
+
+export default connect(mapStateToProps)(HouseDetail);

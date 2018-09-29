@@ -1,9 +1,8 @@
 import axios from 'axios';
 import { Toast } from 'antd-mobile';
-// import Cookie from "js-cookie";
+import Cookie from 'js-cookie';
 const BASE_URL = '/api';
 
-// axios.defaults.withCredentials = true;
 // 创建axios实例
 const service = axios.create({
   baseURL: BASE_URL,
@@ -13,7 +12,11 @@ const service = axios.create({
 // request拦截器
 service.interceptors.request.use(
   config => {
-    config.headers['Content-type'] = 'application/json';
+    config.withCredentials = false;
+    let token = Cookie.get('token');
+    if (token) {
+      config.headers['X-Token'] = token;
+    }
     return config;
   },
   error => {

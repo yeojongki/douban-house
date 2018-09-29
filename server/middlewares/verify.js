@@ -1,18 +1,12 @@
-const jwt = require('jsonwebtoken');
-const config = require('../config');
-const { errorRet } = require('../util');
-
-// verify token by jsonwebtoken
-const verifyToken = token => jwt.verify(token, config.secret);
+const { errorRet, verifyToken } = require('../util');
 
 module.exports = async (ctx, next) => {
   // get header token
-  const token = ctx.header.authorization;
+  const token = ctx.header['x-token'];
   if (token) {
-    let decode;
     try {
-      decode = verifyToken(token);
-      ctx.username = decode.name;
+      let decode = verifyToken(token);
+      ctx.username = decode.username;
       await next();
     } catch (error) {
       ctx.body = errorRet(`${error.message}`);

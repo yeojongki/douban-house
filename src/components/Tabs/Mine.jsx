@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
-import { Button, List } from 'antd-mobile';
+import { List } from 'antd-mobile';
+import Button from 'comp/Button';
 import SvgIcon from 'comp/SvgIcon';
 import LazyImage from 'comp/LazyImage';
 import { resolveScopedStyles } from '@/util';
@@ -14,31 +15,34 @@ const scoped = resolveScopedStyles(
         display: inline-block;
         vertical-align: middle;
       }
-      .login-btn {
-        width: 200px;
-        height: 70px;
-        line-height: 70px;
-        margin-left: 60px;
-        vertical-align: middle;
-        &::before{
-          border-width: 2PX !important;
-        }
-      }
     `}</style>
   </scope>
 );
 export default props => {
-  let login = false;
+  let { isLogin, username } = props;
   return (
     <Fragment>
       <div className="mine">
         <div className="user">
           <LazyImage className={`avatar ${scoped.className}`} />
-          {login ? null : (
+          {isLogin ? (
+            <div className="user-info">
+              Hello,
+              {username}
+              <Button
+                color="red"
+                borderColor="red"
+                mLeft="20"
+                onClick={props.logout}
+              >
+                退出
+              </Button>
+            </div>
+          ) : (
             <Button
-              inline
-              type="ghost"
-              className={`login-btn ${scoped.className}`}
+              color="#108ee9"
+              borderColor="#108ee9"
+              mLeft="20"
               onClick={() => props.navTo('route', '/login')}
             >
               登录
@@ -48,7 +52,7 @@ export default props => {
         <div className="cate flexbox">
           <div
             className="cate-item flexbox ac house-source"
-            onClick={() => props.navTo('route', '/')}
+            onClick={() => props.handleSetActiveTab('listTab')}
           >
             <SvgIcon name="homepage" width="28" height="28" />
             <span>房源</span>
@@ -93,12 +97,16 @@ export default props => {
         </List>
       </div>
       <style jsx>{`
-        @import '../styles/index.scss';
+        @import '../../styles/index.scss';
         .mine {
           min-height: 100%;
           background: #fff;
           .user {
             padding: 20px 40px;
+            &-info {
+              display: inline-block;
+              margin-left: 50px;
+            }
           }
           .cate {
             border-bottom: 20px solid $gray-bg;

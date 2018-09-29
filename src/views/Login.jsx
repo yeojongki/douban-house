@@ -1,7 +1,10 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Toast } from 'antd-mobile';
+import Cookie from 'js-cookie';
 import SvgIcon from 'comp/SvgIcon';
 import { resolveScopedStyles } from '@/util';
+import { setUser } from '@/store/actions/user';
 import { AjaxLogin } from '@/api';
 
 const scoped = resolveScopedStyles(
@@ -50,6 +53,7 @@ class Login extends Component {
   handleSubmit = e => {
     e.preventDefault();
     const { username, password } = this.state.form;
+    const { dispatch } = this.props;
     if (!username) {
       Toast.show('请输入用户名');
       return;
@@ -59,11 +63,18 @@ class Login extends Component {
       return;
     }
     Toast.loading('登录中...', 0);
+    // ajax
     AjaxLogin(this.state.form)
       .then(res => {
-        console.log(res);
-        if (res.code === 1) {
-          Toast.info('登录成功', 1, this.props.history.replace('/'));
+        if (res && res.code === 1) {
+          let user = res.data;
+          // dispatch
+          dispatch(setUser(user));
+          // set cookie
+          let expiresTime = new Date(new Date().getTime() + 2 * 60 * 60 * 1000); //2h
+          Cookie.set('token', user.token, { expires: expiresTime });
+          Cookie.set('username', user.username);
+          Toast.info('登录成功', 1, this.props.history.goBack());
         }
       })
       .catch(() => {
@@ -71,6 +82,9 @@ class Login extends Component {
         setTimeout(() => Toast.hide(), 1500);
       });
   };
+  componentWillUnmount() {
+    Toast.hide();
+  }
   render() {
     return (
       <div className="login">
@@ -228,4 +242,6 @@ class Login extends Component {
   }
 }
 
-export default Login;
+const mapStateToProps = state => ({ isLogin: Boolean(state.user.token) });
+
+export default connect(mapStateToProps)(Login);

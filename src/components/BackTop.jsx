@@ -4,7 +4,7 @@ import { Icon } from 'antd-mobile';
 export default props => (
     <Fragment>
       <button onClick={props.toTop}>
-        <Icon color="#fff" type="up" />
+        <Icon color="#666" type="up" />
       </button>
       <style jsx>{`
         button {
@@ -12,8 +12,8 @@ export default props => (
           bottom: 230px;
           right: 100px;
           padding: 14px 16px;
-          background: rgba(0, 0, 0, 0.4);
-          box-shadow: 0px 0px 7px #313131;
+          background: #fff;
+          box-shadow: 0px 0px 10px #a7a7a7;
           border: 0;
           border-radius: 50%;
           transform: ${props.show ? 'scale(1)' : 'scale(.7)'};

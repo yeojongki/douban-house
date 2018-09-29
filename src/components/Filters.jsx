@@ -4,15 +4,17 @@ import { resolveScopedStyles } from '@/util';
 import { menu1, menu2, menu3, menu4 } from '@/util/filterMenuItem';
 import SvgIcon from 'comp/SvgIcon';
 
+// 用于还原状态
+const initShow = {
+  area: false,
+  type: false,
+  money: false,
+  sort: false
+};
+
 class Filters extends Component {
   constructor(props) {
     super(props);
-    this._initShow = {
-      area: false,
-      type: false,
-      money: false,
-      sort: false
-    };
     this.state = {
       show: {
         area: false,
@@ -38,20 +40,20 @@ class Filters extends Component {
     });
   }
 
-  // set menu show to `false`
+  // 重置还原状态为false
   reset() {
     this.setState({
-      show: Object.assign({}, this._initShow)
+      show: Object.assign({}, initShow)
     });
   }
 
-  // select menu change event
+  // 菜单下拉选择事件
   onChange = (type, v) => {
     let label;
     switch (type) {
       case 'area':
         menu1.forEach(item => {
-          // area handler
+          // 处理区域
           if (item.value === 'area') {
             item.children.forEach(cItem => {
               if (v[1] === cItem.label) {
@@ -75,7 +77,7 @@ class Filters extends Component {
         break;
       case 'type':
         menu2.forEach(item => {
-          // type handler
+          // 处理出租类型
           if (item.value === v[0]) {
             label = item.label;
             return;
@@ -87,7 +89,7 @@ class Filters extends Component {
         break;
       case 'money':
         menu3.forEach(item => {
-          // type handler
+          // 处理租金
           if (item.value === v[0]) {
             label = item.label;
             return;
@@ -108,13 +110,13 @@ class Filters extends Component {
     this.reset();
   };
 
-  // filter menus mask click
+  // 下拉菜单mask点击关闭
   onMaskClick = () => {
     this.reset();
     this.props.close();
   };
 
-  // check if show
+  // 检查是否有下拉菜单打开
   checkShow(type) {
     let { show } = this.state;
     // if no type it indicates is the mask
@@ -129,6 +131,7 @@ class Filters extends Component {
       return false;
     }
   }
+
   render() {
     const scoped = resolveScopedStyles(
       <scope>

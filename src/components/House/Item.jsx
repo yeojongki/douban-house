@@ -34,7 +34,7 @@ export default props => {
           }`}</p>
         </div>
         <style jsx>{`
-          @import '../styles/index.scss';
+          @import '../../styles/index.scss';
           .house {
             padding: 20px;
             & + .house {

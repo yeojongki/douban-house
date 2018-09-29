@@ -1,25 +1,25 @@
-import React, { Component, Fragment } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
-import Router from './router';
 import { Provider } from 'react-redux';
+import { ConnectedRouter } from 'connected-react-router';
 import store from './store';
-
+import router from './router';
+import history from './history';
 // import registerServiceWorker from './registerServiceWorker';
 
-class App extends Component {
-  render() {
-    return (
-      <Fragment>
-        <Provider store={store}>
-          <Router />
-        </Provider>
+const render = () => {
+  ReactDOM.render(
+    <Provider store={store}>
+      <React.Fragment>
+        <ConnectedRouter history={history}>{router}</ConnectedRouter>
         <style jsx global>{`
           @import './styles/index.scss';
         `}</style>
-      </Fragment>
-    );
-  }
-}
+      </React.Fragment>
+    </Provider>,
+    document.getElementById('root')
+  );
+};
 
-ReactDOM.render(<App />, document.getElementById('root'));
+render();
 // registerServiceWorker();

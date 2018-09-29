@@ -27,20 +27,21 @@ class SearchPage extends Component {
     this.autoFocusInst.focus();
   }
 
-  // search input submit event
+  // 搜索提交
   handleSubmit = val => {
     if (val) {
       let query = {
         title: val
       };
-      // set value to localStorge
+      // 从localStorge获取历史搜索记录
       let searchHistory = getStorageByKey(historyKey, 'local');
+      // 如果有历史记录
       if (searchHistory) {
-        // max length is 7
+        // 最多设置7个，大于就移除最开始的
         if (searchHistory.length > 7) {
           searchHistory.pop();
         }
-        // add history
+        // 如果历史记录不存在当前搜索内容,则添加
         if (!searchHistory.includes(val)) {
           searchHistory.push(val);
         }
@@ -48,28 +49,28 @@ class SearchPage extends Component {
         searchHistory = [val];
       }
 
-      // set history to localStorage
+      // 搜索历史添加到localStorage
       setStorageByKey(historyKey, searchHistory, 'local');
-      // set query to sessionStorage
+      // 搜索参数添加到sessionStorage {"title":"天河"}
       setStorageByKey(historyQuery, query);
-      // go index
+      // 返回首页
       this.props.history.replace('/');
     } else {
       this.handleCancel();
     }
   };
 
-  // search input cancel event
+  // 点击取消
   handleCancel = () => {
     this.props.history.replace('/');
   };
 
-  // search input clear event
+  // 清空搜索
   handleClear = () => {
     window.sessionStorage.removeItem(historyQuery);
   };
 
-  // delete search history
+  // 删除历史记录
   removeHistory = () => {
     window.localStorage.removeItem(historyKey);
     window.sessionStorage.removeItem(historyQuery);
@@ -80,7 +81,7 @@ class SearchPage extends Component {
     this.autoFocusInst.focus();
   };
 
-  // history item click
+  // 点击历史记录的项
   historyClick(value) {
     this.handleSubmit(value);
   }
@@ -109,7 +110,7 @@ class SearchPage extends Component {
                 <div
                   className="item flexbox ac"
                   key={index}
-                  onClick={e => this.historyClick(item)}
+                  onClick={() => this.historyClick(item)}
                 >
                   <SvgIcon name="time" color="#666" />
                   <span className="">{item}</span>

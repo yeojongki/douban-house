@@ -6,19 +6,17 @@ import {
   setScrollHeight,
   changePage
 } from '@/store/actions/houseList';
-import { PullToRefresh, ListView, ActivityIndicator } from 'antd-mobile';
-import Filters from 'comp/Filters';
+import FilterMenu from 'comp/Filters';
 import BackTop from 'comp/BackTop';
-import HouseItem from './HouseItem';
+import { List as HouseList } from '../House';
 import Header from 'comp/Header';
 import { getStorageByKey } from '@/util';
-const NoMoreText = '没有更多了哦~';
 
 class TabHouseList extends Component {
   constructor(props) {
     super(props);
 
-    // get searchQuery from sessionStorage
+    // 从sessionStorage获取搜索历史
     const searchQuery = getStorageByKey('search_query');
 
     this.state = {
@@ -28,91 +26,96 @@ class TabHouseList extends Component {
   }
 
   componentDidMount() {
-    // init list
+    // 初始化
     this.handleGetList();
-    // set list view height
+    // 搜索和下拉菜单的高度
     let top_h = this.filterRef.getBoundingClientRect().bottom;
+    // 底部tabs高度
     const bot_h = 50;
-    this.props.setScrollHeight(
-      document.documentElement.clientHeight - top_h - bot_h
+    // 设置滚动高度
+    this.props.dispatch(
+      setScrollHeight(document.documentElement.clientHeight - top_h - bot_h)
     );
   }
 
-  // handle get house list
+  // 获取房源列表
   handleGetList(loadmore) {
     const { query } = this.state;
-    const { fetchHouseList, page, size } = this.props;
+    const { dispatch, page, size } = this.props;
     let queryArr = [];
     for (let i in query) {
       queryArr.push({ key: i, value: query[i] });
     }
-    fetchHouseList(page, size, queryArr, loadmore);
+    dispatch(fetchHouseList(page, size, queryArr, loadmore));
   }
 
-  // refresh event
+  // 下拉刷新事件
   onRefresh = () => {
-    const { changePage } = this.props;
-    changePage(1);
+    this.props.dispatch(changePage(1));
     this.handleGetList();
   };
 
-  // loadmore event
+  // 上拉加载更多事件
   onEndReached = () => {
-    const { isLoading, hasMore, changePage, page } = this.props;
+    const { isLoading, hasMore, dispatch, page } = this.props;
     if (isLoading || !hasMore) {
       return;
     }
-    changePage(page + 1);
+    dispatch(changePage(page + 1));
     this.handleGetList(true);
   };
 
-  // ListView scroll to top
+  // 列表滚动到顶部
   handleBackTop = () => {
     this.lv.scrollTo(0, 0);
   };
 
-  // show `BackTop` component
-  handleShowBackTop(e) {
+  // 是否显示回顶部按钮
+  handleShowBackTop = e => {
     let scrollTop = e.target.scrollTop;
     if (scrollTop > document.documentElement.clientHeight * 0.5) {
       this.setState({ showBackTop: true });
     } else {
       this.setState({ showBackTop: false });
     }
-  }
+  };
 
-  // when filter menus open, change `listview` style `overflow` to 'hidden'
+  // 打开菜单设置列表不能滚动
   handleFilterOpen = () => {
-    ReactDOM.findDOMNode(this.lv).style.overflow = 'hidden';
+    if (this.lv) {
+      ReactDOM.findDOMNode(this.lv).style.overflow = 'hidden';
+    }
   };
 
-  // filter menus close reset
+  // 关闭菜单设置列表恢复滚动
   handleFilterClose = () => {
-    ReactDOM.findDOMNode(this.lv).style.overflow = 'auto';
+    if (this.lv) {
+      ReactDOM.findDOMNode(this.lv).style.overflow = 'auto';
+    }
   };
 
-  // build new filter query
+  // 构建新的搜索参数
   buildNewQuery(key, exclude, delKey, value, customQuery, q) {
     let curQuery = Object.assign({}, this.state.query);
     let query;
-    // if need exclude
+    // 如果需要排除
     if (exclude) {
       const handleDelKey = k => {
         if (curQuery.hasOwnProperty(k)) {
           delete curQuery[k];
         }
       };
-      // String `delkey`
+      // 如果`delkey`是string类型
       if (typeof delKey === 'string') {
         handleDelKey(delKey);
       } else if (Array.isArray(delKey)) {
-        // Array `delkey`
+        // Array类型
         delKey.forEach(k => {
           handleDelKey(k);
         });
       }
     }
-    // if need custom query
+    // 如果需要自定义参数
     if (customQuery) {
       query = q;
     } else {
@@ -127,27 +130,26 @@ class TabHouseList extends Component {
     );
   }
 
-  // filter menus change event
+  // 下拉菜单选择后的事件
   handleFilterChange = (type, v) => {
-    const { changePage } = this.props;
-    // reset page to 1
-    changePage(1);
-    // set listview style `overflow:auto`
+    // 重置到第一页
+    this.props.dispatch(changePage(1));
+    // 设置可以滚动
     this.handleFilterClose();
-    // let query, newQuery;
     switch (type) {
+      // 区域
       case 'area':
-        // area or subway
         if (v[0] === 'area') {
           this.buildNewQuery('area', true, 'subway', v[1]);
         } else {
-          // subway
           this.buildNewQuery('subway', true, 'area', v[1]);
         }
         break;
+      // 出租类型
       case 'type':
         this.buildNewQuery('model', false, '', v[0]);
         break;
+      // 租金
       case 'money':
         let oj = {};
         v[0].forEach(item => {
@@ -155,6 +157,7 @@ class TabHouseList extends Component {
         });
         this.buildNewQuery('', true, ['price_gt', 'price_lt'], '', true, oj);
         break;
+      // 排序
       case 'sort':
         this.buildNewQuery('sort', false, '', v[0]);
         break;
@@ -165,48 +168,25 @@ class TabHouseList extends Component {
   };
 
   render() {
-    const ds = new ListView.DataSource({
-      rowHasChanged: (r1, r2) => r1 !== r2
-    });
     const { list, height, hasMore, refreshing } = this.props;
-    const row = rowData => {
-      return <HouseItem house={rowData} />;
-    };
     return (
       <Fragment>
         <Header searchClick={this.props.searchClick} />
-        <Filters
+        <FilterMenu
           filterRef={ref => (this.filterRef = ref)}
           open={this.handleFilterOpen}
           close={this.handleFilterClose}
           change={this.handleFilterChange}
         />
-        <ListView
-          style={{
-            height: height
-          }}
-          ref={el => (this.lv = el)}
-          dataSource={ds.cloneWithRows(list)}
-          renderFooter={() => {
-            return hasMore ? (
-              <div className="flexbox jc">
-                <ActivityIndicator text="正在加载" />
-              </div>
-            ) : (
-              <div className="flexbox jc">{NoMoreText}</div>
-            );
-          }}
-          renderRow={row}
-          pullToRefresh={
-            <PullToRefresh refreshing={refreshing} onRefresh={this.onRefresh} />
-          }
-          onScroll={e => {
-            this.handleShowBackTop(e);
-          }}
-          scrollEventThrottle={500}
-          scrollRenderAheadDistance={1000}
+        <HouseList
+          height={height}
+          lv={ref => (this.lv = ref)}
+          list={list}
+          hasMore={hasMore}
+          refreshing={refreshing}
+          handleShowBackTop={this.handleShowBackTop}
           onEndReached={this.onEndReached}
-          pageSize={10}
+          onRefresh={this.onRefresh}
         />
         <BackTop show={this.state.showBackTop} toTop={this.handleBackTop} />
       </Fragment>
@@ -214,31 +194,14 @@ class TabHouseList extends Component {
   }
 }
 
-const mapState = state => {
-  return {
-    list: state.houseList.list,
-    size: state.houseList.size,
-    page: state.houseList.page,
-    height: state.houseList.height,
-    isLoading: state.houseList.loading.isLoading,
-    hasMore: state.houseList.loading.hasMore,
-    refreshing: state.houseList.loading.refreshing
-  };
-};
-
-const mapDispatch = dispatch => ({
-  fetchHouseList(page, size, filter, loadmore) {
-    dispatch(fetchHouseList(page, size, filter, loadmore));
-  },
-  setScrollHeight(height) {
-    dispatch(setScrollHeight(height));
-  },
-  changePage(page) {
-    dispatch(changePage(page));
-  }
+const mapStateToProps = state => ({
+  list: state.houseList.list,
+  size: state.houseList.size,
+  page: state.houseList.page,
+  height: state.houseList.height,
+  isLoading: state.houseList.loading.isLoading,
+  hasMore: state.houseList.loading.hasMore,
+  refreshing: state.houseList.loading.refreshing
 });
 
-export default connect(
-  mapState,
-  mapDispatch
-)(TabHouseList);
+export default connect(mapStateToProps)(TabHouseList);

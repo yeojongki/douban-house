@@ -4,7 +4,8 @@ import { connect } from 'react-redux';
 import {
   fetchHouseList,
   setScrollHeight,
-  changePage
+  changePage,
+  setScrollTop
 } from '@/store/actions/houseList';
 import FilterMenu from 'comp/Filters';
 import BackTop from 'comp/BackTop';
@@ -27,7 +28,18 @@ class TabHouseList extends Component {
 
   componentDidMount() {
     // 初始化
-    this.handleGetList();
+    let { list, scrollTop } = this.props;
+    if (list && list.length) {
+      console.log(scrollTop, this.lv);
+      // 恢复滚动条位置
+      if (scrollTop && this.lv) {
+        console.log(scrollTop);
+        this.lv.scrollTo(0, scrollTop);
+      }
+    } else {
+      // redux中没有List才去请求
+      this.handleGetList();
+    }
     // 搜索和下拉菜单的高度
     let top_h = this.filterRef.getBoundingClientRect().bottom;
     // 底部tabs高度
@@ -36,6 +48,19 @@ class TabHouseList extends Component {
     this.props.dispatch(
       setScrollHeight(document.documentElement.clientHeight - top_h - bot_h)
     );
+  }
+
+  //组件卸载时存储滚动条位置
+  componentWillUnmount() {
+    this.saveScroll();
+  }
+
+  // 存储滚动条位置
+  saveScroll() {
+    if (this.lv) {
+      let scrollTop = this.lv.listviewRef.ListViewRef.ScrollViewRef.scrollTop;
+      this.props.dispatch(setScrollTop(scrollTop));
+    }
   }
 
   // 获取房源列表
@@ -67,7 +92,7 @@ class TabHouseList extends Component {
 
   // 列表滚动到顶部
   handleBackTop = () => {
-    this.lv.scrollTo(0, 0);
+    this.lv && this.lv.scrollTo(0, 0);
   };
 
   // 是否显示回顶部按钮
@@ -168,7 +193,7 @@ class TabHouseList extends Component {
   };
 
   render() {
-    const { list, height, hasMore, refreshing } = this.props;
+    const { list, height, hasMore, refreshing, scrollTop } = this.props;
     return (
       <Fragment>
         <Header searchClick={this.props.searchClick} />
@@ -184,7 +209,8 @@ class TabHouseList extends Component {
           list={list}
           hasMore={hasMore}
           refreshing={refreshing}
-          handleShowBackTop={this.handleShowBackTop}
+          scrollTop={scrollTop}
+          onScroll={this.handleShowBackTop}
           onEndReached={this.onEndReached}
           onRefresh={this.onRefresh}
         />
@@ -199,6 +225,7 @@ const mapStateToProps = state => ({
   size: state.houseList.size,
   page: state.houseList.page,
   height: state.houseList.height,
+  scrollTop: state.houseList.scrollTop,
   isLoading: state.houseList.loading.isLoading,
   hasMore: state.houseList.loading.hasMore,
   refreshing: state.houseList.loading.refreshing

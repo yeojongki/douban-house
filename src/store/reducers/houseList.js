@@ -5,6 +5,7 @@ const defaultState = {
   page: 1,
   size: 30,
   height: null,
+  scrollTop: null,
   loading: {
     hasMore: true,
     refreshing: false,
@@ -33,6 +34,9 @@ export default (state = defaultState, action) => {
         list: state.list.concat(action.list),
         filter: action.filter
       };
+    // 设置滚动条当前位置
+    case types.SET_SCROLL_TOP:
+      return { ...state, scrollTop: action.scrollTop }
 
     default:
       return state;

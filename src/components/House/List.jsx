@@ -43,18 +43,14 @@ export default props => {
           />
         }
         onScroll={e => {
-          props.handleShowBackTop(e);
+          props.onScroll(e);
         }}
+        initialListSize={props.scrollTop ? list.length : 20}
         scrollEventThrottle={500}
         scrollRenderAheadDistance={1000}
         onEndReached={props.onEndReached}
         pageSize={20}
       />
-      <style jsx>{`
-        .empty {
-          height: 500px;
-        }
-      `}</style>
     </div>
   ) : (
     <div>{EmptyHandle(list)}</div>

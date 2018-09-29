@@ -212,6 +212,7 @@ class Login extends Component {
                     z-index: -1;
                     width: 300%;
                     height: 100%;
+                    background: #945af1;
                     background: -webkit-linear-gradient(
                       right,
                       #00dbde,

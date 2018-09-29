@@ -65,3 +65,9 @@ export const changePage = page => ({
   type: types.CHANGE_PAGE,
   page
 });
+
+// 设置当前滚动条位置
+export const setScrollTop = scrollTop => ({
+  type: types.SET_SCROLL_TOP,
+  scrollTop
+});

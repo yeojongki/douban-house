@@ -7,21 +7,16 @@ import { setQuery } from '@/store/actions/houseList';
 
 // localstorage search key
 const historyKey = 'search_history';
-const historyQuery = 'search_query';
 
 class SearchPage extends Component {
   constructor() {
     super();
 
-    // get search history from localstorage
+    // 从localstorage获取搜索历史
     const history = getStorageByKey(historyKey, 'local');
 
-    // get search query from sessionStorage
-    const query = getStorageByKey(historyQuery);
-
     this.state = {
-      searchHistory: history || [],
-      query: query
+      searchHistory: history || []
     };
   }
 
@@ -32,7 +27,6 @@ class SearchPage extends Component {
   // 搜索提交
   handleSubmit = val => {
     if (val) {
-      let query = { title: val };
       // 从localStorge获取历史搜索记录
       let searchHistory = getStorageByKey(historyKey, 'local');
       // 如果有历史记录
@@ -53,9 +47,14 @@ class SearchPage extends Component {
       setStorageByKey(historyKey, searchHistory, 'local');
       // 搜索参数添加到redux {"title":"天河"}
       const { dispatch } = this.props;
-      dispatch(setQuery(query));
+      // 从redux中获取原来的query
+      const query = this.props.query;
+      dispatch(setQuery({ ...query, title: val }));
       // 返回首页
-      this.props.history.replace('/');
+      this.props.history.replace({
+        pathname: '/',
+        query: { fromSearch: true }
+      });
     } else {
       this.handleCancel();
     }
@@ -66,18 +65,11 @@ class SearchPage extends Component {
     this.props.history.replace('/');
   };
 
-  // 清空搜索
-  handleClear = () => {
-    window.sessionStorage.removeItem(historyQuery);
-  };
-
   // 删除历史记录
   removeHistory = () => {
     window.localStorage.removeItem(historyKey);
-    window.sessionStorage.removeItem(historyQuery);
     this.setState({
-      searchHistory: [],
-      query: null
+      searchHistory: []
     });
     this.autoFocusInst.focus();
   };
@@ -88,7 +80,8 @@ class SearchPage extends Component {
   }
 
   render() {
-    const { searchHistory, query } = this.state;
+    const { searchHistory } = this.state;
+    const { query } = this.props;
     return (
       <div className="search">
         <SearchBar
@@ -165,4 +158,5 @@ class SearchPage extends Component {
   }
 }
 
-export default connect()(SearchPage);
+const mapStateToProps = state => ({ query: state.houseList.query });
+export default connect(mapStateToProps)(SearchPage);

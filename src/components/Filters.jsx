@@ -26,7 +26,8 @@ class Filters extends Component {
       },
       areaText: props.selectedMenu[0] && props.selectedMenu[0].label,
       typeText: props.selectedMenu[1] && props.selectedMenu[1].label,
-      moneyText: props.selectedMenu[2] && props.selectedMenu[2].label
+      moneyText: props.selectedMenu[2] && props.selectedMenu[2].label,
+      sortText: props.selectedMenu[3] && props.selectedMenu[3].label
     };
   }
 
@@ -108,7 +109,7 @@ class Filters extends Component {
         break;
       case 'sort':
         this.sortText = 'select';
-        this.handleSetMenu(3, { label: label, value: v });
+        this.handleSetMenu(3, { label: 'sortText', value: v });
         break;
 
       default:
@@ -179,7 +180,8 @@ class Filters extends Component {
       show: { area, type, money, sort },
       areaText,
       typeText,
-      moneyText
+      moneyText,
+      sortText
     } = this.state;
 
     const { selectedMenu } = this.props;
@@ -223,7 +225,7 @@ class Filters extends Component {
             />
           </div>
           <div
-            className={`filter-h-item sort ${sort ? 'active' : ''}`}
+            className={`filter-h-item sort ${sort || sortText ? 'active' : ''}`}
             onClick={() => this.handleFilterClick('sort')}
           >
             <SvgIcon

@@ -1,11 +1,9 @@
 import React from 'react';
 import { Icon } from 'antd-mobile';
 import SvgIcon from 'comp/SvgIcon';
-import { getStorageByKey } from '@/util';
 
 export default props => {
-  let query = getStorageByKey('search_query');
-  const placeholder = query && query.title;
+  const placeholder = props.placeholder;
   return (
     <header className="flexbox">
       <div className="h__location flexbox ac jc">
@@ -13,7 +11,7 @@ export default props => {
         <span>广州</span>
       </div>
       <div className="h__search flexbox ac jc" onClick={props.searchClick}>
-        <Icon type="search" size="xs"/>
+        <Icon type="search" size="xs" />
         <span>{placeholder ? placeholder : '请输入关键词'}</span>
       </div>
       <style jsx>{`
@@ -34,8 +32,8 @@ export default props => {
             padding: 10px;
             margin-right: 15px;
             border-radius: 10px;
-            span{
-              margin-left:10px;
+            span {
+              margin-left: 10px;
             }
           }
         }

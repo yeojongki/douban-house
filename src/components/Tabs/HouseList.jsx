@@ -24,8 +24,10 @@ class TabHouseList extends Component {
 
   componentDidMount() {
     // 初始化
-    let { list, scrollTop } = this.props;
-    if (list && list.length) {
+    const { list, scrollTop, routeQuery } = this.props;
+    // 是否从搜索页返回
+    const fromSearch = routeQuery && routeQuery.fromSearch;
+    if (list && list.length && !fromSearch) {
       // 恢复滚动条位置
       if (scrollTop && this.lv) {
         this.lv.scrollTo(0, scrollTop);
@@ -35,8 +37,7 @@ class TabHouseList extends Component {
       this.handleGetList();
     }
     // 搜索和下拉菜单的高度
-    let top_h = 79;
-    // let top_h = this.filterRef.getBoundingClientRect().bottom;
+    let top_h = this.filterRef.getBoundingClientRect().bottom;
     // 底部tabs高度
     const bot_h = 50;
     // 设置滚动高度
@@ -207,10 +208,13 @@ class TabHouseList extends Component {
   };
 
   render() {
-    const { list, height, hasMore, refreshing, scrollTop } = this.props;
+    const { list, height, hasMore, refreshing, scrollTop, query } = this.props;
     return (
       <Fragment>
-        <Header searchClick={this.props.searchClick} />
+        <Header
+          searchClick={this.props.searchClick}
+          placeholder={query.title}
+        />
         <FilterMenu
           filterRef={ref => (this.filterRef = ref)}
           open={this.handleFilterOpen}
@@ -243,7 +247,8 @@ const mapStateToProps = state => ({
   scrollTop: state.houseList.scrollTop,
   isLoading: state.houseList.loading.isLoading,
   hasMore: state.houseList.loading.hasMore,
-  refreshing: state.houseList.loading.refreshing
+  refreshing: state.houseList.loading.refreshing,
+  routeQuery: state.router.location.query
 });
 
 export default connect(mapStateToProps)(TabHouseList);

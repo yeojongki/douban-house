@@ -71,3 +71,15 @@ export const setScrollTop = scrollTop => ({
   type: types.SET_SCROLL_TOP,
   scrollTop
 });
+
+// 设置搜索参数
+export const setQuery = query => ({
+  type: types.SET_QUERY,
+  query
+});
+
+// 设置搜索菜单选择项
+export const setSelectedMenu = selectedMenu => ({
+  type: types.SET_SELECTED_MENU,
+  selectedMenu
+});

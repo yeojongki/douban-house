@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { SearchBar } from 'antd-mobile';
 import SvgIcon from 'comp/SvgIcon';
 import { setStorageByKey, getStorageByKey } from '@/util';
+import { setQuery } from '@/store/actions/houseList';
 
 // localstorage search key
 const historyKey = 'search_history';
@@ -30,9 +32,7 @@ class SearchPage extends Component {
   // 搜索提交
   handleSubmit = val => {
     if (val) {
-      let query = {
-        title: val
-      };
+      let query = { title: val };
       // 从localStorge获取历史搜索记录
       let searchHistory = getStorageByKey(historyKey, 'local');
       // 如果有历史记录
@@ -43,7 +43,7 @@ class SearchPage extends Component {
         }
         // 如果历史记录不存在当前搜索内容,则添加
         if (!searchHistory.includes(val)) {
-          searchHistory.push(val);
+          searchHistory.unshift(val);
         }
       } else {
         searchHistory = [val];
@@ -51,8 +51,9 @@ class SearchPage extends Component {
 
       // 搜索历史添加到localStorage
       setStorageByKey(historyKey, searchHistory, 'local');
-      // 搜索参数添加到sessionStorage {"title":"天河"}
-      setStorageByKey(historyQuery, query);
+      // 搜索参数添加到redux {"title":"天河"}
+      const { dispatch } = this.props;
+      dispatch(setQuery(query));
       // 返回首页
       this.props.history.replace('/');
     } else {
@@ -164,4 +165,4 @@ class SearchPage extends Component {
   }
 }
 
-export default SearchPage;
+export default connect()(SearchPage);

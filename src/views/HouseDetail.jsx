@@ -64,10 +64,10 @@ class HouseDetail extends Component {
 
   componentDidMount() {
     GetHouseById(this.props.match.params.id).then(res => {
-      if (res) {
+      if (res && res.code === 1) {
         this.setState({
-          house: res.house,
-          isLike: res.isLike
+          house: res.data.house,
+          isLike: res.data.isLike
         });
       }
     });

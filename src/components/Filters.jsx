@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Menu, Icon } from 'antd-mobile';
+import { setSelectedMenu } from '@/store/actions/houseList';
 import { resolveScopedStyles } from '@/util';
 import { menu1, menu2, menu3, menu4 } from '@/util/filterMenuItem';
 import SvgIcon from 'comp/SvgIcon';
@@ -22,11 +24,13 @@ class Filters extends Component {
         money: false,
         sort: false
       },
-      areaText: null,
-      typeText: null,
-      moneyText: null
+      areaText: props.selectedMenu[0] && props.selectedMenu[0].label,
+      typeText: props.selectedMenu[1] && props.selectedMenu[1].label,
+      moneyText: props.selectedMenu[2] && props.selectedMenu[2].label
     };
   }
+
+  // 筛选菜单点击
   handleFilterClick(type) {
     let { show } = this.state;
     for (let key in show) {
@@ -74,6 +78,7 @@ class Filters extends Component {
         label === '不限'
           ? this.setState({ areaText: '区域' })
           : this.setState({ areaText: label });
+        this.handleSetMenu(0, { label: label, value: v });
         break;
       case 'type':
         menu2.forEach(item => {
@@ -86,6 +91,7 @@ class Filters extends Component {
         label === '不限'
           ? this.setState({ typeText: '出租类型' })
           : this.setState({ typeText: label });
+        this.handleSetMenu(1, { label: label, value: v });
         break;
       case 'money':
         menu3.forEach(item => {
@@ -98,9 +104,11 @@ class Filters extends Component {
         label === '不限'
           ? this.setState({ moneyText: '租金' })
           : this.setState({ moneyText: label });
+        this.handleSetMenu(2, { label: label, value: v });
         break;
       case 'sort':
         this.sortText = 'select';
+        this.handleSetMenu(3, { label: label, value: v });
         break;
 
       default:
@@ -130,6 +138,14 @@ class Filters extends Component {
       }
       return false;
     }
+  }
+
+  // 设置redux下拉菜单
+  handleSetMenu(index, item) {
+    const { dispatch, selectedMenu } = this.props;
+    let curMenu = selectedMenu.slice();
+    curMenu[index] = item;
+    dispatch(setSelectedMenu(curMenu));
   }
 
   render() {
@@ -165,6 +181,8 @@ class Filters extends Component {
       typeText,
       moneyText
     } = this.state;
+
+    const { selectedMenu } = this.props;
     return (
       <div className="filter" ref={this.props.filterRef}>
         <div className="filter-h flexbox">
@@ -222,6 +240,7 @@ class Filters extends Component {
               className={`mymenu ${scoped.className} ${
                 this.checkShow('area') ? 'show' : ''
               }`}
+              value={selectedMenu[0] && selectedMenu[0].value}
               data={menu1}
               onChange={v => this.onChange('area', v)}
               onOk={this.onOk}
@@ -234,6 +253,7 @@ class Filters extends Component {
               className={`mymenu ${scoped.className} ${
                 this.checkShow('type') ? 'show' : ''
               }`}
+              value={selectedMenu[1] && selectedMenu[1].value}
               data={menu2}
               level={1}
               onChange={v => this.onChange('type', v)}
@@ -247,6 +267,7 @@ class Filters extends Component {
               className={`mymenu ${scoped.className} ${
                 this.checkShow('money') ? 'show' : ''
               }`}
+              value={selectedMenu[2] && selectedMenu[2].value}
               data={menu3}
               level={1}
               onChange={v => this.onChange('money', v)}
@@ -260,6 +281,7 @@ class Filters extends Component {
               className={`mymenu ${scoped.className} ${
                 this.checkShow('sort') ? 'show' : ''
               }`}
+              value={selectedMenu[3] && selectedMenu[3].value}
               data={menu4}
               level={1}
               onChange={v => this.onChange('sort', v)}
@@ -321,4 +343,8 @@ class Filters extends Component {
     );
   }
 }
-export default Filters;
+
+const mapStateToProps = state => ({
+  selectedMenu: state.houseList.selectedMenu
+});
+export default connect(mapStateToProps)(Filters);

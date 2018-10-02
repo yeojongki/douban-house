@@ -9,13 +9,6 @@ import { setStorageByKey } from '@/util';
 import Cookie from 'js-cookie';
 
 class Tabs extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      hidden: false
-    };
-  }
-
   navToSearch = () => {
     this.props.history.push('/search');
   };
@@ -51,7 +44,6 @@ class Tabs extends React.Component {
           unselectedTintColor="#949494"
           tintColor="#108ee9"
           barTintColor="white"
-          hidden={this.state.hidden}
         >
           <TabBar.Item
             title="房源"

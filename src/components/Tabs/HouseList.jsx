@@ -5,24 +5,20 @@ import {
   fetchHouseList,
   setScrollHeight,
   changePage,
-  setScrollTop
+  setScrollTop,
+  setQuery
 } from '@/store/actions/houseList';
 import FilterMenu from 'comp/Filters';
 import BackTop from 'comp/BackTop';
 import { List as HouseList } from '../House';
 import Header from 'comp/Header';
-import { getStorageByKey } from '@/util';
 
 class TabHouseList extends Component {
   constructor(props) {
     super(props);
 
-    // 从sessionStorage获取搜索历史
-    const searchQuery = getStorageByKey('search_query');
-
     this.state = {
-      showBackTop: false,
-      query: searchQuery
+      showBackTop: false
     };
   }
 
@@ -30,10 +26,8 @@ class TabHouseList extends Component {
     // 初始化
     let { list, scrollTop } = this.props;
     if (list && list.length) {
-      console.log(scrollTop, this.lv);
       // 恢复滚动条位置
       if (scrollTop && this.lv) {
-        console.log(scrollTop);
         this.lv.scrollTo(0, scrollTop);
       }
     } else {
@@ -41,7 +35,8 @@ class TabHouseList extends Component {
       this.handleGetList();
     }
     // 搜索和下拉菜单的高度
-    let top_h = this.filterRef.getBoundingClientRect().bottom;
+    let top_h = 79;
+    // let top_h = this.filterRef.getBoundingClientRect().bottom;
     // 底部tabs高度
     const bot_h = 50;
     // 设置滚动高度
@@ -64,14 +59,13 @@ class TabHouseList extends Component {
   }
 
   // 获取房源列表
-  handleGetList(loadmore) {
-    const { query } = this.state;
-    const { dispatch, page, size } = this.props;
+  handleGetList(isLoadmore) {
+    const { dispatch, page, size, query } = this.props;
     let queryArr = [];
     for (let i in query) {
       queryArr.push({ key: i, value: query[i] });
     }
-    dispatch(fetchHouseList(page, size, queryArr, loadmore));
+    dispatch(fetchHouseList(page, size, queryArr, isLoadmore));
   }
 
   // 下拉刷新事件
@@ -121,8 +115,9 @@ class TabHouseList extends Component {
 
   // 构建新的搜索参数
   buildNewQuery(key, exclude, delKey, value, customQuery, q) {
-    let curQuery = Object.assign({}, this.state.query);
-    let query;
+    const { dispatch, query } = this.props;
+    let curQuery = Object.assign({}, query);
+    let newQuery;
     // 如果需要排除
     if (exclude) {
       const handleDelKey = k => {
@@ -142,23 +137,21 @@ class TabHouseList extends Component {
     }
     // 如果需要自定义参数
     if (customQuery) {
-      query = q;
+      newQuery = q;
     } else {
-      query = { [key]: value ? value : null };
+      newQuery = { [key]: value ? value : null };
     }
-    // setState
-    this.setState(
-      {
-        query: { ...curQuery, ...query }
-      },
-      () => this.handleGetList()
-    );
+    // set redux
+    dispatch(setQuery({ ...curQuery, ...newQuery }));
+    this.handleGetList();
   }
 
   // 下拉菜单选择后的事件
   handleFilterChange = (type, v) => {
     // 重置到第一页
     this.props.dispatch(changePage(1));
+    // 回到顶部
+    this.handleBackTop();
     // 设置可以滚动
     this.handleFilterClose();
     switch (type) {
@@ -176,11 +169,32 @@ class TabHouseList extends Component {
         break;
       // 租金
       case 'money':
-        let oj = {};
-        v[0].forEach(item => {
-          oj[item.key] = item.value;
-        });
-        this.buildNewQuery('', true, ['price_gt', 'price_lt'], '', true, oj);
+        let arr;
+        if (v[0]) {
+          arr = v[0].split(',');
+        } else {
+          // 选择菜单为第一个`不限`时
+          this.buildNewQuery('price_gt', true, ['price_gt', 'price_lt'], v[0]);
+        }
+        if (arr) {
+          // 说明值是区间 如[0,2000] => '{price_lt:1000,price_gt:2000}'
+          if (arr.length === 2) {
+            let oj = {};
+            oj.price_gt = arr[0];
+            oj.price_lt = arr[1];
+            this.buildNewQuery(
+              '',
+              true,
+              ['price_gt', 'price_lt'],
+              '',
+              true,
+              oj
+            );
+          } else {
+            // 说明是大于值 如[5000] => '{price_gt:5000}'
+            this.buildNewQuery('price_gt', false, '', v[0]);
+          }
+        }
         break;
       // 排序
       case 'sort':
@@ -224,6 +238,7 @@ const mapStateToProps = state => ({
   list: state.houseList.list,
   size: state.houseList.size,
   page: state.houseList.page,
+  query: state.houseList.query,
   height: state.houseList.height,
   scrollTop: state.houseList.scrollTop,
   isLoading: state.houseList.loading.isLoading,

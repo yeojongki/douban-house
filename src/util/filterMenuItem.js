@@ -143,69 +143,27 @@ export const menu2 = [
 export const menu3 = [
   {
     label: '不限',
-    value: [
-      {
-        key: 'price_gt',
-        value: 0
-      }
-    ]
+    value: 0
   },
   {
     label: '1000元以下',
-    value: [
-      {
-        key: 'price_lt',
-        value: 1000
-      }
-    ]
+    value: '0,1000'
   },
   {
     label: '1000-2000元',
-    value: [
-      {
-        key: 'price_gt',
-        value: 1000
-      },
-      {
-        key: 'price_lt',
-        value: 2000
-      }
-    ]
+    value: '1000,2000'
   },
   {
     label: '2000-3000元',
-    value: [
-      {
-        key: 'price_gt',
-        value: 2000
-      },
-      {
-        key: 'price_lt',
-        value: 3000
-      }
-    ]
+    value: '2000,3000'
   },
   {
     label: '3000-4000元',
-    value: [
-      {
-        key: 'price_gt',
-        value: 3000
-      },
-      {
-        key: 'price_lt',
-        value: 4000
-      }
-    ]
+    value: '3000,4000'
   },
   {
     label: '5000元以上',
-    value: [
-      {
-        key: 'price_gt',
-        value: 5000
-      }
-    ]
+    value: '5000'
   }
 ];
 

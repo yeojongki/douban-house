@@ -5,18 +5,8 @@ import request from '@/util/request';
  * @param {Number/String} tid
  */
 export const GetHouseById = tid => {
-  return new Promise((resolve, reject) => {
-    request({
-      url: `/house/${tid}`
-    })
-      .then(res => {
-        if (res && res.code === 1) {
-          resolve(res.data);
-        }
-      })
-      .catch(err => {
-        reject(err);
-      });
+  return request({
+    url: `/house/${tid}`
   });
 };
 

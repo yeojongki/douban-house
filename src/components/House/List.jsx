@@ -12,9 +12,7 @@ const row = rowData => <HouseItem house={rowData} />;
 const EmptyHandle = list =>
   list && list.length === 0 ? (
     <Empty text="暂时没有房源哦~" />
-  ) : (
-    <ActivityIndicator toast />
-  );
+  ) : null;
 
 export default props => {
   const { list, height } = props;

@@ -1,6 +1,7 @@
 import React from 'react';
 import Loadable from 'react-loadable';
 import Tabs from '@/views/Tabs';
+import HouseSearch from '@/views/HouseSearch';
 
 function LoadingComponent({ error, pastDelay }) {
   if (error) {
@@ -27,10 +28,11 @@ const About = Loadable({
   loading: LoadingComponent
 });
 
-const HouseSearch = Loadable({
-  loader: () => import('@/views/HouseSearch'),
-  loading: LoadingComponent
-});
+// 懒加载会导致搜索页面input的`placeholder`显示不全的问题，暂时直接加载
+// const HouseSearch = Loadable({
+//   loader: () => import('@/views/HouseSearch'),
+//   loading: LoadingComponent
+// });
 
 const UserLikes = Loadable({
   loader: () => import('@/views/UserLikes'),

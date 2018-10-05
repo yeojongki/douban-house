@@ -24,7 +24,7 @@ class TabHouseList extends Component {
 
   componentDidMount() {
     // 初始化
-    const { list, scrollTop, routeQuery } = this.props;
+    const { list, scrollTop, routeQuery, scrollHeight } = this.props;
     // 是否从搜索页返回
     const fromSearch = routeQuery && routeQuery.fromSearch;
     if (list && list.length && !fromSearch) {
@@ -36,14 +36,16 @@ class TabHouseList extends Component {
       // redux中没有List才去请求
       this.handleGetList();
     }
-    // 搜索和下拉菜单的高度
-    let top_h = this.filterRef.getBoundingClientRect().bottom;
-    // 底部tabs高度
-    const bot_h = 50;
-    // 设置滚动高度
-    this.props.dispatch(
-      setScrollHeight(document.documentElement.clientHeight - top_h - bot_h)
-    );
+    if (!scrollHeight) {
+      // 搜索和下拉菜单的高度
+      let top_h = this.filterRef.getBoundingClientRect().bottom;
+      // 底部tabs高度
+      const bot_h = 50;
+      // 设置滚动高度
+      this.props.dispatch(
+        setScrollHeight(document.documentElement.clientHeight - top_h - bot_h)
+      );
+    }
   }
 
   //组件卸载时存储滚动条位置
@@ -208,7 +210,14 @@ class TabHouseList extends Component {
   };
 
   render() {
-    const { list, height, hasMore, refreshing, scrollTop, query } = this.props;
+    const {
+      list,
+      scrollHeight,
+      hasMore,
+      refreshing,
+      scrollTop,
+      query
+    } = this.props;
     return (
       <Fragment>
         <Header
@@ -222,7 +231,7 @@ class TabHouseList extends Component {
           change={this.handleFilterChange}
         />
         <HouseList
-          height={height}
+          height={scrollHeight}
           lv={ref => (this.lv = ref)}
           list={list}
           hasMore={hasMore}
@@ -243,7 +252,7 @@ const mapStateToProps = state => ({
   size: state.houseList.size,
   page: state.houseList.page,
   query: state.houseList.query,
-  height: state.houseList.height,
+  scrollHeight: state.houseList.scrollHeight,
   scrollTop: state.houseList.scrollTop,
   isLoading: state.houseList.loading.isLoading,
   hasMore: state.houseList.loading.hasMore,

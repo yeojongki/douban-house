@@ -49,7 +49,6 @@ class UserLikeList extends React.Component {
         right={[
           {
             text: 'Cancel',
-            onPress: () => console.log('cancel'),
             style: { backgroundColor: '#ddd', color: 'white' }
           },
           {

@@ -55,9 +55,9 @@ export const fetchHouseList = (
 };
 
 // 设置滚动列表高度
-export const setScrollHeight = height => ({
+export const setScrollHeight = scrollHeight => ({
   type: types.SET_SCROLL_HEIGHT,
-  height
+  scrollHeight
 });
 
 // 列表页数更改

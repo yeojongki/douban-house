@@ -1,10 +1,11 @@
 import * as types from '../actionTypes/houseList';
+import { Toast } from 'antd-mobile';
 
 const defaultState = {
   list: null,
   page: 1,
   size: 30,
-  height: null,
+  scrollHeight: null,
   scrollTop: null,
   loading: {
     hasMore: true,
@@ -19,13 +20,19 @@ export default (state = defaultState, action) => {
   switch (action.type) {
     // 设置loading
     case types.SET_LOADING:
+      if (action.loading.isLoading) {
+        Toast.loading('加载中', 0);
+      }
+      if (action.loading.isLoading === false) {
+        Toast.hide();
+      }
       return { ...state, loading: { ...state.loading, ...action.loading } };
     // 设置房源列表
     case types.SET_HOUSE_LIST:
       return { ...state, list: action.list };
     // 设置滚动高度
     case types.SET_SCROLL_HEIGHT:
-      return { ...state, height: action.height };
+      return { ...state, scrollHeight: action.scrollHeight };
     // 设置页码
     case types.CHANGE_PAGE:
       return { ...state, page: action.page };

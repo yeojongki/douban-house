@@ -130,6 +130,10 @@ class Login extends Component {
             />
             <div className="form-item-line" />
           </div>
+          <p className="form-tips">
+            提示：输入帐号密码自动注册并登录哦
+            <span role="img" aria-label="emojis">😉</span>
+          </p>
           <div className="form-btn-wrap">
             <div className="form-btn-outer">
               <div className="form-btn-bg" />
@@ -232,6 +236,9 @@ class Login extends Component {
                     width: 100%;
                     @include lheihgt();
                   }
+                }
+                &-tips {
+                  color: #999;
                 }
               }
             }
